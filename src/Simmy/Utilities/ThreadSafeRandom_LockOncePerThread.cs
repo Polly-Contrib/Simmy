@@ -6,7 +6,7 @@ using System.Threading;
 // An implementation locking once-per-random-number-generated will generate a marginally more random sequence.
 // This implementation intentionally favours execution speed over that marginal extra degree of randomness.
 // We choose that trade-off where the random number generator is used to select executions for chaos/fault injection, where we want minimum extra drag per execution.
-// In other scenarios such as randomising jitter, we may (with a different implementation) favour randomness at the expense of locking once-per-random-number-generated.
+// In other scenarios such as randomizing for jitter in retries, the Polly project may (with a different implementation) favour randomness at the expense of locking once-per-random-number-generated.
 
 // References:
 // - https://stackoverflow.com/a/25448166/
