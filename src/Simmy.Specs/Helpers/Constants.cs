@@ -6,7 +6,8 @@
     public class Constants
     {
         /// <summary>
-        /// Denotes a test collection dependent on manipulating the abstracted <see cref="Polly.Utilities.SystemClock"/>.  <remarks>These tests are not parallelized.</remarks>
+        /// Used to identify an xUnit test collection dependent on manipulating some ambient context.
+        /// <remarks>Tests in such collections are not parallelized, which prevents one test polluting another when ambient context is manipulated.</remarks>
         /// </summary>
         public const string AmbientContextDependentTestCollection = "AmbientContextDependentTestCollection";
     }

@@ -11,8 +11,6 @@ namespace Simmy
     /// </summary>
     public partial class MonkeyPolicy
     {
-        #region Action Delegate Based Monkey Policies
-
         /// <summary>
         /// Builds a <see cref="AsyncInjectBehaviourPolicy"/> which executes a behaviour if <paramref name="enabled"/> returns true and
         /// a random number is within range of <paramref name="injectionRate"/>.
@@ -101,7 +99,5 @@ namespace Simmy
                     injectionRate,
                     enabled);
         }
-
-        #endregion
     }
 }
