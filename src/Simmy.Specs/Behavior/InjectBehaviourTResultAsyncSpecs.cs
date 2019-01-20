@@ -20,8 +20,6 @@ namespace Simmy.Specs.Behavior
             ThreadSafeRandom_LockOncePerThread.Reset();
         }
 
-        #region Action based Monkey policies
-
         [Fact]
         public void Given_not_enabled_should_not_inject_behaviour()
         {
@@ -82,7 +80,5 @@ namespace Simmy.Specs.Behavior
             userDelegateExecuted.Should().BeTrue();
             injectedBehaviourExecuted.Should().BeTrue();
         }
-
-        #endregion
     }
 }
