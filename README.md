@@ -23,4 +23,4 @@ See [Issues](https://github.com/App-vNext/Simmy/issues) for latest discussions a
 
 ## Credits
 
-Simmy was [the brainchild of](https://github.com/App-vNext/Polly/issues/499) [@mebjas](https://github.com/mebjas) and [@reisenberger](https://github.com/reisenberger). The major part of the implementation was by [@vany0114](https://github.com/vany0114) with assistance from [@mebjas](https://github.com/mebjas) and [@reisenberger](https://github.com/reisenberger).
+Simmy was [the brainchild of](https://github.com/App-vNext/Polly/issues/499) [@mebjas](https://github.com/mebjas) and [@reisenberger](https://github.com/reisenberger). The major part of the implementation was by [@vany0114](https://github.com/vany0114) and [@mebjas](https://github.com/mebjas), with contributions also from [@reisenberger](https://github.com/reisenberger) of the Polly team.
