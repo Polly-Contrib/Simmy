@@ -13,7 +13,6 @@ namespace Simmy
         internal Func<Context, Task<bool>> Enabled { get; }
 
         internal AsyncMonkeyPolicy(Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
-           : base(ExceptionPredicates.None)
         {
             InjectionRate = injectionRate ?? throw new ArgumentNullException(nameof(injectionRate));
             Enabled = enabled ?? throw new ArgumentNullException(nameof(enabled));
@@ -30,7 +29,6 @@ namespace Simmy
         internal Func<Context, Task<bool>> Enabled { get; }
 
         internal AsyncMonkeyPolicy(Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled) 
-            : base(ExceptionPredicates.None, ResultPredicates<TResult>.None)
         {
             InjectionRate = injectionRate ?? throw new ArgumentNullException(nameof(injectionRate));
             Enabled = enabled ?? throw new ArgumentNullException(nameof(enabled));
