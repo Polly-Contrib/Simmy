@@ -33,6 +33,6 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Polly" Version="7.0.0-v700-0001" />
+    <PackageReference Include="Polly" Version="7.0.1" />
   </ItemGroup>
 </Project>
