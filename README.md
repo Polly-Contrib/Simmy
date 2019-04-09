@@ -27,9 +27,9 @@ Simmy offers the following chaos-injection policies:
 
 |Policy| What does the policy do?|
 | ------------- |------------- |
-|**[Fault](##Inject-fault)**|Injects exceptions or substitute results, to fake faults in your system.|
-|**[Latency](##Inject-latency)**|Injects latency into executions before the calls are made.|
-|**[Behavior](##Inject-behavior)**|Allows you to inject _any_ extra behaviour, before a call is placed. |
+|**[Fault](#Inject-fault)**|Injects exceptions or substitute results, to fake faults in your system.|
+|**[Latency](#Inject-latency)**|Injects latency into executions before the calls are made.|
+|**[Behavior](#Inject-behavior)**|Allows you to inject _any_ extra behaviour, before a call is placed. |
 
 # Usage
 
