@@ -20,10 +20,10 @@
     <dependencies>
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="Polly" version="7.0.3" />
+        <dependency id="Polly" version="7.1.0" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="Polly" version="7.0.3" />
+        <dependency id="Polly" version="7.1.0" />
       </group>
     </dependencies>
   </metadata>

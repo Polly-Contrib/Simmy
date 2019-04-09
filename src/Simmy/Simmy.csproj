@@ -4,11 +4,11 @@
     <TargetFrameworks>netstandard1.1;netstandard2.0</TargetFrameworks>
     <AssemblyName>Simmy</AssemblyName>
     <RootNamespace>Simmy</RootNamespace>
-    <Version>0.1.0-pullrequest0008-0007</Version>
+    <Version>0.1.0</Version>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
     <InformationalVersion>0.1.0.0</InformationalVersion>
-    <PackageVersion>0.1.0-pullrequest0008-0007</PackageVersion>
+    <PackageVersion>0.1.0</PackageVersion>
     <Company>App vNext</Company>
     <Copyright>Copyright (c) 2019, App vNext</Copyright>
     <Description>Simmy is a chaos-engineering and fault-injection tool, integrating with the Polly resilience project for .NET</Description>
@@ -33,6 +33,6 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Polly" Version="7.0.3" />
+    <PackageReference Include="Polly" Version="7.1.0" />
   </ItemGroup>
 </Project>
