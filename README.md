@@ -3,7 +3,7 @@ Simmy is a [chaos-engineering](http://principlesofchaos.org/) and fault-injectio
 
 Simmy allows you to introduce a chaos-injection policy or policies at any location where you execute code through Polly.
 
-![Simmy](./Simmy.png)
+<img src="./Simmy.png" alt="Simmy"  width="300"/>
 
 # Motivation
 
