@@ -1,4 +1,7 @@
 # Simmy
+
+[![Build status](https://ci.appveyor.com/api/projects/status/5v3bpgjkw4snv3no?svg=true)](https://ci.appveyor.com/project/Polly-Contrib/simmy)
+
 Simmy is a [chaos-engineering](http://principlesofchaos.org/) and fault-injection tool, integrating with the [Polly resilience project for .NET](https://github.com/App-vNext/Polly).  It is releasing April 2019 and works with [Polly v7.0.0](https://www.nuget.org/packages/Polly/7.1.0) onwards.
 
 Simmy allows you to introduce a chaos-injection policy or policies at any location where you execute code through Polly.
