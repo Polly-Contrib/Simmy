@@ -23,8 +23,8 @@ var configuration = Argument<string>("configuration", "Release");
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
-var projectName = "Simmy";
-var keyName = "Simmy.snk";
+var projectName = "Polly.Contrib.Simmy";
+var keyName = "Polly.Contrib.Simmy.snk";
 
 var solutions = GetFiles("./**/*.sln");
 var solutionPaths = solutions.Select(solution => solution.GetDirectory());
@@ -159,7 +159,7 @@ Task("__UpdateDotNetStandardAssemblyVersionNumber")
         { "PackageVersion", nugetVersion },
     };
 
-    var csproj = File("./src/Simmy/Simmy.csproj");
+    var csproj = File("./src/Polly.Contrib.Simmy/Polly.Contrib.Simmy.csproj");
 
     foreach(var attributeMap in attributeToValueMap) {
         var attribute = attributeMap.Key;
@@ -212,7 +212,7 @@ Task("__RunTests")
 Task("__CopyOutputToNugetFolder")
     .Does(() =>
 {
-    var sourceDir = srcDir + Directory("Simmy") + Directory("bin") + Directory(configuration);
+    var sourceDir = srcDir + Directory("Polly.Contrib.Simmy") + Directory("bin") + Directory(configuration);
 
     var destDir = buildDir + Directory("lib");
 
