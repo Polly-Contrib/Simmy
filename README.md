@@ -60,7 +60,7 @@ var chaosPolicy = MonkeyPolicy.InjectLatency(
 
 ## Inject behavior
 ```csharp
-var chaosPolicy = MonkeyPolicy.InjectLatency(
+var chaosPolicy = MonkeyPolicy.InjectBehaviour(
     Action | Action<Context> behaviour,
     double | Func<Context, double> injectionRate, 
     Func<bool> | Func<Context, bool> enabled 
