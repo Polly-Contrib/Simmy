@@ -92,7 +92,7 @@ The [example app](https://github.com/Polly-Contrib/Polly.Contrib.SimmyDemo_WebAp
 
 ```csharp
 // Following example causes the policy to throw SocketException with a probability of 5% if enabled
-var fault = new SocketException("Monkey fault exception");
+var fault = new SocketException(errorCode: 10013);
 var faultPolicy = MonkeyPolicy.InjectFault<SocketException>(
 	fault, 
 	injectionRate: 0.05, 
