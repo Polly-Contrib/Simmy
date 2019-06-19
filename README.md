@@ -174,3 +174,13 @@ See [Issues](https://github.com/App-vNext/Simmy/issues) for latest discussions o
 ## Credits
 
 Simmy was [the brainchild of](https://github.com/App-vNext/Polly/issues/499) [@mebjas](https://github.com/mebjas) and [@reisenberger](https://github.com/reisenberger). The major part of the implementation was by [@vany0114](https://github.com/vany0114) and [@mebjas](https://github.com/mebjas), with contributions also from [@reisenberger](https://github.com/reisenberger) of the Polly team.
+
+## Blogs and architecture samples around Simmy
+
+### Blog posts
+* [Simmy, the monkey for making chaos](http://elvanydev.com/chaos-injection-with-simmy/) -by [Geovanny Alzate Sandoval](https://twitter.com/geovany0114)
+
+### Samples
+* [Dylan Reisenberger](http://www.thepollyproject.org/author/dylan/) presents an [intentionally simple example](https://github.com/Polly-Contrib/Polly.Contrib.SimmyDemo_WebApi) .NET Core WebAPI app demonstrating how we can set up Simmy chaos policies for certain environments and without changing any existing configuration code injecting faults or chaos by modifying external configuration.
+
+* [Geovanny Alzate Sandoval](https://github.com/vany0114) made a [microservices based sample application](https://github.com/vany0114/chaos-injection-using-simmy) to demonstrate how chaos engineering works with Simmy using chaos policies in a distributed system and how we can inject even a custom behavior given our needs or infrastructure, this time injecting custom behavior to generate chaos in our Service Fabric Cluster.
