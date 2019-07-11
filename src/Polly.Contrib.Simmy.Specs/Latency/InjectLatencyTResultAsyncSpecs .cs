@@ -99,7 +99,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             var context = new Context();
             context["Enabled"] = true;
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
@@ -122,7 +122,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             var context = new Context();
             context["Enabled"] = false;
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
@@ -145,7 +145,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             var context = new Context();
             context["Enabled"] = true;
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
@@ -169,12 +169,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.6;
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
 
-            Func<Context, Task<double>> injectionRate = async (ctx) =>
+            Func<Context, CancellationToken, Task<double>> injectionRate = async (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -203,12 +203,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.3;
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
 
-            Func<Context, Task<double>> injectionRate = async (ctx) =>
+            Func<Context, CancellationToken, Task<double>> injectionRate = async (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -248,12 +248,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return await Task.FromResult(TimeSpan.FromMilliseconds(0));
             };
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
 
-            Func<Context, Task<double>> injectionRate = async (ctx) =>
+            Func<Context, CancellationToken, Task<double>> injectionRate = async (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -293,12 +293,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return await Task.FromResult(TimeSpan.FromMilliseconds(0));
             };
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
 
-            Func<Context, Task<double>> injectionRate = async (ctx) =>
+            Func<Context, CancellationToken, Task<double>> injectionRate = async (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -338,12 +338,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return await Task.FromResult(TimeSpan.FromMilliseconds(0));
             };
 
-            Func<Context, Task<bool>> enabled = async (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = async (ctx, ct) =>
             {
                 return await Task.FromResult((bool)ctx["Enabled"]);
             };
 
-            Func<Context, Task<double>> injectionRate = async (ctx) =>
+            Func<Context, CancellationToken, Task<double>> injectionRate = async (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {

@@ -14,8 +14,8 @@ namespace Polly.Contrib.Simmy.Latency
 
         internal AsyncInjectLatencyPolicy(
             Func<Context, CancellationToken, Task<TimeSpan>> latencyProvider,
-            Func<Context, Task<Double>> injectionRate, 
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate, 
+            Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
@@ -51,8 +51,8 @@ namespace Polly.Contrib.Simmy.Latency
 
         internal AsyncInjectLatencyPolicy(
             Func<Context, CancellationToken, Task<TimeSpan>> latencyProvider,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));

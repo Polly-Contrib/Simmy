@@ -7,14 +7,19 @@ namespace Polly.Contrib.Simmy
 {
     internal static class AsyncMonkeyEngine
     {
-        private static async Task<bool> ShouldInjectAsync(Context context, Func<Context, Task<double>> injectionRate, Func<Context, Task<bool>> enabled, bool continueOnCapturedContext)
+        private static async Task<bool> ShouldInjectAsync(
+            Context context, 
+            CancellationToken cancellationToken, 
+            Func<Context, CancellationToken, Task<double>> injectionRate, 
+            Func<Context, CancellationToken, Task<bool>> enabled, 
+            bool continueOnCapturedContext)
         {
-            if (!await enabled(context).ConfigureAwait(continueOnCapturedContext))
+            if (!await enabled(context, cancellationToken).ConfigureAwait(continueOnCapturedContext))
             {
                 return false;
             }
 
-            double injectionThreshold = await injectionRate(context).ConfigureAwait(continueOnCapturedContext);
+            double injectionThreshold = await injectionRate(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             if (injectionThreshold < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.");
@@ -32,11 +37,11 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Task> injectedBehaviour,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled,
             bool continueOnCapturedContext)
         {
-            if (await ShouldInjectAsync(context, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
+            if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
                 await injectedBehaviour(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
@@ -49,11 +54,11 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Task<Exception>> injectedException,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled,
             bool continueOnCapturedContext)
         {
-            if (await ShouldInjectAsync(context, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
+            if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
                 Exception exception = await injectedException(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
                 if (exception != null)
@@ -70,11 +75,11 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Task<TResult>> injectedResult,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled,
             bool continueOnCapturedContext)
         {
-            if (await ShouldInjectAsync(context, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
+            if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
                 return await injectedResult(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }

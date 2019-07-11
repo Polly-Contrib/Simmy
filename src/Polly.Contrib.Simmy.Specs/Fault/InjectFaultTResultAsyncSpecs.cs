@@ -68,7 +68,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFaultAsync<ResultPrimitive>(
                 new Exception(),
                 0.6,
-                async (ctx) =>
+                async (ctx, ct) =>
                 {
                     return await Task.FromResult((bool)ctx["ShouldFail"]);
                 });
@@ -91,7 +91,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFaultAsync<ResultPrimitive>(
                 new Exception(),
                 0.4,
-                async (ctx) =>
+                async (ctx, ct) =>
                 {
                     return await Task.FromResult((bool)ctx["ShouldFail"]);
                 });
@@ -116,7 +116,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFaultAsync<ResultPrimitive>(
                 new Exception(),
                 0.4,
-                async (ctx) =>
+                async (ctx, ct) =>
                 {
                     return await Task.FromResult((bool)ctx["ShouldFail"]);
                 });
@@ -142,8 +142,8 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             };
 
             Func<Context, CancellationToken, Task<Exception>> fault = (ctx, cts) => Task.FromResult(new Exception());
-            Func<Context, Task<double>> injectionRate = (ctx) => Task.FromResult(0.6);
-            Func<Context, Task<bool>> enabled = (ctx) => Task.FromResult(true);
+            Func<Context, CancellationToken, Task<double>> injectionRate = (ctx, ct) => Task.FromResult(0.6);
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) => Task.FromResult(true);
             var policy = MonkeyPolicy.InjectFaultAsync<ResultPrimitive>(fault, injectionRate, enabled);
             policy.Awaiting(async x => await x.ExecuteAsync(actionAsync, context))
                 .ShouldThrowExactly<Exception>();
@@ -176,7 +176,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult(new Exception());
             };
 
-            Func<Context, Task<Double>> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
             {
                 double rate = 0;
                 if (ctx["InjectionRate"] != null)
@@ -187,7 +187,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult(rate);
             };
 
-            Func<Context, Task<bool>> enabled = (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
             {
                 return Task.FromResult((bool)ctx["ShouldFail"]);
             };
@@ -249,7 +249,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             };
 
             ResultPrimitive fault = ResultPrimitive.Fault;
-            Func<Context, Task<bool>> enabled = (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
             {
                 return Task.FromResult((bool)ctx["ShouldFail"]);
             };
@@ -273,7 +273,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             };
 
             ResultPrimitive fault = ResultPrimitive.Fault;
-            Func<Context, Task<bool>> enabled = (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
             {
                 return Task.FromResult((bool)ctx["ShouldFail"]);
             };
@@ -302,7 +302,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult(ResultPrimitive.Fault);
             };
 
-            Func<Context, Task<Double>> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
             {
                 double rate = 0;
                 if (ctx["InjectionRate"] != null)
@@ -313,7 +313,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult(rate);
             };
 
-            Func<Context, Task<bool>> enabled = (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
             {
                 return Task.FromResult(true);
             };
@@ -342,7 +342,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult(ResultPrimitive.Fault);
             };
 
-            Func<Context, Task<Double>> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
             {
                 double rate = 0;
                 if (ctx["InjectionRate"] != null)
@@ -353,7 +353,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult(rate);
             };
 
-            Func<Context, Task<bool>> enabled = (ctx) =>
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
             {
                 return Task.FromResult(true);
             };

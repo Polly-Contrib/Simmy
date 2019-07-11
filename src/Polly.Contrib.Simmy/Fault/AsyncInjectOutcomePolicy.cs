@@ -12,7 +12,7 @@ namespace Polly.Contrib.Simmy.Fault
     {
         private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
 
-        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
+        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
@@ -41,13 +41,13 @@ namespace Polly.Contrib.Simmy.Fault
         private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
         private readonly Func<Context, CancellationToken, Task<TResult>> _resultProvider;
 
-        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
+        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
 
-        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<TResult>> resultProvider, Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
+        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<TResult>> resultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _resultProvider = resultProvider ?? throw new ArgumentNullException(nameof(resultProvider));
