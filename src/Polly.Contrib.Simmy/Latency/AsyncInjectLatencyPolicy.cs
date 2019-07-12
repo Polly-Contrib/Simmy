@@ -32,10 +32,16 @@ namespace Polly.Contrib.Simmy.Latency
                 action,
                 context,
                 cancellationToken,
-                async (ctx, ct) => await SystemClock.SleepAsync(
-                        await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext),
-                        InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
-                    .ConfigureAwait(continueOnCapturedContext),
+                async (ctx, ct) =>
+                {
+                    var latency = await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    await SystemClock.SleepAsync(
+                            latency,
+                            InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
+                        .ConfigureAwait(continueOnCapturedContext);
+                },
                 InjectionRate,
                 Enabled,
                 continueOnCapturedContext);
@@ -69,10 +75,16 @@ namespace Polly.Contrib.Simmy.Latency
                 action,
                 context,
                 cancellationToken,
-                async (ctx, ct) => await SystemClock.SleepAsync(
-                    await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext),
-                        InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
-                    .ConfigureAwait(continueOnCapturedContext),
+                async (ctx, ct) =>
+                {
+                    var latency = await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    await SystemClock.SleepAsync(
+                            latency,
+                            InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
+                        .ConfigureAwait(continueOnCapturedContext);
+                },
                 InjectionRate,
                 Enabled,
                 continueOnCapturedContext);

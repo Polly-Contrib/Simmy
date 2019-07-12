@@ -214,5 +214,225 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             executed.Should().BeFalse();
         }
         #endregion
+
+        #region Cancellable scenarios
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_before_to_start_execution()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+            Func<Context, CancellationToken, Task> actionAsync = (ctx, ct) =>
+            {
+                executed = true;
+                return TaskHelper.EmptyTask;
+            };
+
+            Func<Context, CancellationToken, Task<Exception>> fault = (ctx, cts) =>
+            {
+                if (ctx["Message"] != null)
+                {
+                    Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                    return Task.FromResult(ex);
+                }
+
+                return Task.FromResult(new Exception());
+            };
+
+            Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
+            {
+                double rate = 0;
+                if (ctx["InjectionRate"] != null)
+                {
+                    rate = (double)ctx["InjectionRate"];
+                }
+
+                return Task.FromResult(rate);
+            };
+
+            Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
+            {
+                return Task.FromResult((bool)ctx["ShouldFail"]);
+            };
+
+            var policy = MonkeyPolicy.InjectFaultAsync(fault, injectionRate, enabled);
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                cts.Cancel();
+
+                policy.Awaiting(async x => await x.ExecuteAsync(actionAsync, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_enabled_config_delegate()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+            Func<Context, CancellationToken, Task> actionAsync = (ctx, ct) =>
+            {
+                executed = true;
+                return TaskHelper.EmptyTask;
+            };
+
+            Func<Context, CancellationToken, Task<Exception>> fault = (ctx, cts) =>
+            {
+                if (ctx["Message"] != null)
+                {
+                    Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                    return Task.FromResult(ex);
+                }
+
+                return Task.FromResult(new Exception());
+            };
+
+            Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
+            {
+                double rate = 0;
+                if (ctx["InjectionRate"] != null)
+                {
+                    rate = (double)ctx["InjectionRate"];
+                }
+
+                return Task.FromResult(rate);
+            };
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
+                {
+                    cts.Cancel();
+                    return Task.FromResult((bool)ctx["ShouldFail"]);
+                };
+
+                var policy = MonkeyPolicy.InjectFaultAsync(fault, injectionRate, enabled);
+
+                policy.Awaiting(async x => await x.ExecuteAsync(actionAsync, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_injectionrate_config_delegate()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+            Func<Context, CancellationToken, Task> actionAsync = (ctx, ct) =>
+            {
+                executed = true;
+                return TaskHelper.EmptyTask;
+            };
+
+            Func<Context, CancellationToken, Task<Exception>> fault = (ctx, cts) =>
+            {
+                if (ctx["Message"] != null)
+                {
+                    Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                    return Task.FromResult(ex);
+                }
+
+                return Task.FromResult(new Exception());
+            };
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
+                {
+                    return Task.FromResult((bool)ctx["ShouldFail"]);
+                };
+
+                Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
+                {
+                    double rate = 0;
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        rate = (double)ctx["InjectionRate"];
+                    }
+
+                    cts.Cancel();
+                    return Task.FromResult(rate);
+                };
+
+                var policy = MonkeyPolicy.InjectFaultAsync(fault, injectionRate, enabled);
+
+                policy.Awaiting(async x => await x.ExecuteAsync(actionAsync, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_fault_config_delegate()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+            Func<Context, CancellationToken, Task> actionAsync = (ctx, ct) =>
+            {
+                executed = true;
+                return TaskHelper.EmptyTask;
+            };
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) =>
+                {
+                    return Task.FromResult((bool)ctx["ShouldFail"]);
+                };
+
+                Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) =>
+                {
+                    double rate = 0;
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        rate = (double)ctx["InjectionRate"];
+                    }
+
+                    return Task.FromResult(rate);
+                };
+
+                Func<Context, CancellationToken, Task<Exception>> fault = (ctx, ct) =>
+                {
+                    cts.Cancel();
+                    if (ctx["Message"] != null)
+                    {
+                        Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                        return Task.FromResult(ex);
+                    }
+
+                    return Task.FromResult(new Exception());
+                };
+
+                var policy = MonkeyPolicy.InjectFaultAsync(fault, injectionRate, enabled);
+
+                policy.Awaiting(async x => await x.ExecuteAsync(actionAsync, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        #endregion
     }
 }
