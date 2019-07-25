@@ -9,9 +9,9 @@ namespace Polly.Contrib.Simmy.Fault
     /// </summary>
     public class InjectOutcomePolicy : Simmy.MonkeyPolicy
     {
-        private readonly Func<Context, Exception> _faultProvider;
+        private readonly Func<Context, CancellationToken, Exception> _faultProvider;
 
-        internal InjectOutcomePolicy(Func<Context, Exception> faultProvider, Func<Context, double> injectionRate, Func<Context, bool> enabled) 
+        internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
@@ -35,16 +35,16 @@ namespace Polly.Contrib.Simmy.Fault
     /// </summary>
     public class InjectOutcomePolicy<TResult> : MonkeyPolicy<TResult>
     {
-        private readonly Func<Context, Exception> _faultProvider;
-        private readonly Func<Context, TResult> _resultProvider;
+        private readonly Func<Context, CancellationToken, Exception> _faultProvider;
+        private readonly Func<Context, CancellationToken, TResult> _resultProvider;
 
-        internal InjectOutcomePolicy(Func<Context, Exception> faultProvider, Func<Context, double> injectionRate, Func<Context, bool> enabled)
+        internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
 
-        internal InjectOutcomePolicy(Func<Context, TResult> resultProvider, Func<Context, double> injectionRate, Func<Context, bool> enabled)
+        internal InjectOutcomePolicy(Func<Context, CancellationToken, TResult> resultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
             : base(injectionRate, enabled)
         {
             _resultProvider = resultProvider ?? throw new ArgumentNullException(nameof(resultProvider));

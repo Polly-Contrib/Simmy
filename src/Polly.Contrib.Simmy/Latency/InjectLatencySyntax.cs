@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Polly.Contrib.Simmy.Latency;
 
 namespace Polly.Contrib.Simmy
@@ -20,7 +21,7 @@ namespace Polly.Contrib.Simmy
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            return new InjectLatencyPolicy(_ => latency, _ => injectionRate, _ => enabled());
+            return new InjectLatencyPolicy((_, __) => latency, (_, __) => injectionRate, (_, __) => enabled());
         }
 
         /// <summary>
@@ -34,11 +35,11 @@ namespace Polly.Contrib.Simmy
         public static InjectLatencyPolicy InjectLatency(
             TimeSpan latency,
             Double injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            return new InjectLatencyPolicy(_ => latency, _ => injectionRate, enabled);
+            return new InjectLatencyPolicy((_, __) => latency, (_, __) => injectionRate, enabled);
         }
 
         /// <summary>
@@ -51,13 +52,13 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static InjectLatencyPolicy InjectLatency(
             TimeSpan latency,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            return new InjectLatencyPolicy(_ => latency, injectionRate, enabled);
+            return new InjectLatencyPolicy((_, __) => latency, injectionRate, enabled);
         }
 
         /// <summary>
@@ -69,14 +70,14 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectLatencyPolicy InjectLatency(
-            Func<Context, TimeSpan> latency,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, TimeSpan> latency,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (latency == null) throw new ArgumentNullException(nameof(latency));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
-            
+
             return new InjectLatencyPolicy(latency, injectionRate, enabled);
         }
     }
@@ -98,7 +99,7 @@ namespace Polly.Contrib.Simmy
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            return new InjectLatencyPolicy<TResult>(_ => latency, _ => injectionRate, _ => enabled());
+            return new InjectLatencyPolicy<TResult>((_, __) => latency, (_, __) => injectionRate, (_, __) => enabled());
         }
 
         /// <summary>
@@ -112,11 +113,11 @@ namespace Polly.Contrib.Simmy
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
             TimeSpan latency,
             Double injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            return new InjectLatencyPolicy<TResult>(_ => latency, _ => injectionRate, enabled);
+            return new InjectLatencyPolicy<TResult>((_, __) => latency, (_, __) => injectionRate, enabled);
         }
 
         /// <summary>
@@ -129,13 +130,13 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
             TimeSpan latency,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            return new InjectLatencyPolicy<TResult>(_ => latency, injectionRate, enabled);
+            return new InjectLatencyPolicy<TResult>((_, __) => latency, injectionRate, enabled);
         }
 
         /// <summary>
@@ -147,9 +148,9 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
-            Func<Context, TimeSpan> latency,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, TimeSpan> latency,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (latency == null) throw new ArgumentNullException(nameof(latency));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));

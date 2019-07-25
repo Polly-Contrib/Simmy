@@ -35,8 +35,9 @@ namespace Polly.Contrib.Simmy.Latency
                 async (ctx, ct) =>
                 {
                     var latency = await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext);
-                    cancellationToken.ThrowIfCancellationRequested();
 
+                    // to prevent inject latency if token was signaled on latency configuration delegate.
+                    cancellationToken.ThrowIfCancellationRequested();
                     await SystemClock.SleepAsync(
                             latency,
                             InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
@@ -78,8 +79,9 @@ namespace Polly.Contrib.Simmy.Latency
                 async (ctx, ct) =>
                 {
                     var latency = await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext);
-                    cancellationToken.ThrowIfCancellationRequested();
 
+                    // to prevent inject latency if token was signaled on latency configuration delegate.
+                    cancellationToken.ThrowIfCancellationRequested();
                     await SystemClock.SleepAsync(
                             latency,
                             InjectLatencyPolicy.DefaultCancellationForInjectedLatency)

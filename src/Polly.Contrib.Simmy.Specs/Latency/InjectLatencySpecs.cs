@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using FluentAssertions;
 using Polly.Contrib.Simmy.Utilities;
 using Polly.Utilities;
@@ -88,7 +89,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             var context = new Context();
             context["Enabled"] = true;
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
@@ -109,7 +110,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             var context = new Context();
             context["Enabled"] = false;
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
@@ -130,7 +131,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             var context = new Context();
             context["Enabled"] = true;
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
@@ -152,12 +153,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.6;
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            Func<Context, double> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -184,12 +185,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.3;
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            Func<Context, double> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -217,7 +218,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.6;
 
-            Func<Context, TimeSpan> latencyProvider = (ctx) =>
+            Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
                 if ((bool)ctx["ShouldInjectLatency"])
                 {
@@ -227,12 +228,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return TimeSpan.FromMilliseconds(0);
             };
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            Func<Context, double> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -260,7 +261,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.6;
 
-            Func<Context, TimeSpan> latencyProvider = (ctx) =>
+            Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
                 if ((bool)ctx["ShouldInjectLatency"])
                 {
@@ -270,12 +271,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return TimeSpan.FromMilliseconds(0);
             };
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            Func<Context, double> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -303,7 +304,7 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             context["Enabled"] = true;
             context["InjectionRate"] = 0.3;
 
-            Func<Context, TimeSpan> latencyProvider = (ctx) =>
+            Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
                 if ((bool)ctx["ShouldInjectLatency"])
                 {
@@ -313,12 +314,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return TimeSpan.FromMilliseconds(0);
             };
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            Func<Context, double> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -334,6 +335,204 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             policy.Execute((ctx) => { executed = true; }, context);
 
             executed.Should().BeTrue();
+            _totalTimeSlept.Should().Be(0);
+        }
+
+        #endregion
+
+        #region Cancellable scenarios
+
+        [Fact]
+        public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_before_to_start_execution()
+        {
+            var delay = TimeSpan.FromMilliseconds(500);
+            var context = new Context();
+            context["ShouldInjectLatency"] = true;
+            context["Enabled"] = true;
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
+            {
+                if ((bool)ctx["ShouldInjectLatency"])
+                {
+                    return delay;
+                }
+
+                return TimeSpan.FromMilliseconds(0);
+            };
+
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+            {
+                return (bool)ctx["Enabled"];
+            };
+
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
+            {
+                if (ctx["InjectionRate"] != null)
+                {
+                    return (double)ctx["InjectionRate"];
+                }
+
+                return 0;
+            };
+
+            Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                cts.Cancel();
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+            _totalTimeSlept.Should().Be(0);
+        }
+
+        [Fact]
+        public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_enabled_config_delegate()
+        {
+            var delay = TimeSpan.FromMilliseconds(500);
+            var context = new Context();
+            context["ShouldInjectLatency"] = true;
+            context["Enabled"] = true;
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
+            {
+                if ((bool)ctx["ShouldInjectLatency"])
+                {
+                    return delay;
+                }
+
+                return TimeSpan.FromMilliseconds(0);
+            };
+
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
+            {
+                if (ctx["InjectionRate"] != null)
+                {
+                    return (double)ctx["InjectionRate"];
+                }
+
+                return 0;
+            };
+
+            Boolean executed = false;
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    cts.Cancel();
+                    return (bool)ctx["Enabled"];
+                };
+
+                var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+            _totalTimeSlept.Should().Be(0);
+        }
+
+        [Fact]
+        public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_injectionrate_config_delegate()
+        {
+            var delay = TimeSpan.FromMilliseconds(500);
+            var context = new Context();
+            context["ShouldInjectLatency"] = true;
+            context["Enabled"] = true;
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
+            {
+                if ((bool)ctx["ShouldInjectLatency"])
+                {
+                    return delay;
+                }
+
+                return TimeSpan.FromMilliseconds(0);
+            };
+
+            Boolean executed = false;
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    return (bool)ctx["Enabled"];
+                };
+
+                Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
+                {
+                    cts.Cancel();
+
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        return (double)ctx["InjectionRate"];
+                    }
+
+                    return 0;
+                };
+
+                var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+            _totalTimeSlept.Should().Be(0);
+        }
+
+        [Fact]
+        public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_latency_config_delegate()
+        {
+            var delay = TimeSpan.FromMilliseconds(500);
+            var context = new Context();
+            context["ShouldInjectLatency"] = true;
+            context["Enabled"] = true;
+            context["InjectionRate"] = 0.6;
+
+            Boolean executed = false;
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    return (bool)ctx["Enabled"];
+                };
+
+                Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
+                {
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        return (double)ctx["InjectionRate"];
+                    }
+
+                    return 0;
+                };
+
+                Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
+                {
+                    cts.Cancel();
+
+                    if ((bool)ctx["ShouldInjectLatency"])
+                    {
+                        return delay;
+                    }
+
+                    return TimeSpan.FromMilliseconds(0);
+                };
+
+                var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
             _totalTimeSlept.Should().Be(0);
         }
 

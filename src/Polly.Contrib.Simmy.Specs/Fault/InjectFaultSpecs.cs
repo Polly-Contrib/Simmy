@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using FluentAssertions;
 using Polly.Contrib.Simmy.Utilities;
 using Xunit;
@@ -71,7 +72,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFault(
                 new Exception("test"),
                 0.6,
-                (ctx) =>
+                (ctx, ct) =>
                 {
                     return ((bool)ctx["ShouldFail"]);
                 });
@@ -92,7 +93,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFault(
                 new Exception("test"),
                 0.4,
-                (ctx) =>
+                (ctx, ct) =>
                 {
                     return ((bool)ctx["ShouldFail"]);
                 });
@@ -113,7 +114,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFault(
                 new Exception("test"),
                 0.6,
-                (ctx) =>
+                (ctx, ct) =>
                 {
                     return ((bool)ctx["ShouldFail"]);
                 });
@@ -133,9 +134,9 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Boolean executed = false;
             Context context = new Context();
 
-            Func<Context, Exception> fault = (ctx) => new Exception();
-            Func<Context, double> injectionRate = (ctx) => -0.1;
-            Func<Context, bool> enabled = (ctx) => true;
+            Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => -0.1;
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
             var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<ArgumentOutOfRangeException>();
@@ -149,9 +150,9 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Boolean executed = false;
             Context context = new Context();
 
-            Func<Context, Exception> fault = (ctx) => new Exception();
-            Func<Context, double> injectionRate = (ctx) => 1.01;
-            Func<Context, bool> enabled = (ctx) => true;
+            Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => 1.01;
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
             var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<ArgumentOutOfRangeException>();
@@ -165,9 +166,9 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Boolean executed = false;
             Context context = new Context();
 
-            Func<Context, Exception> fault = (ctx) => new Exception();
-            Func<Context, double> injectionRate = (ctx) => 0.6;
-            Func<Context, bool> enabled = (ctx) => true;
+            Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => 0.6;
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
             var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<Exception>();
@@ -185,7 +186,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             context["Message"] = failureMessage;
             context["InjectionRate"] = 0.6;
 
-            Func<Context, Exception> fault = (ctx) =>
+            Func<Context, CancellationToken, Exception> fault = (ctx, ct) =>
             {
                 if (ctx["Message"] != null)
                 {
@@ -195,7 +196,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return new Exception();
             };
 
-            Func<Context, double> injectionRate = (ctx) =>
+            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
             {
                 if (ctx["InjectionRate"] != null)
                 {
@@ -205,7 +206,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return 0;
             };
 
-            Func<Context, bool> enabled = (ctx) =>
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["ShouldFail"]);
             };
@@ -216,6 +217,206 @@ namespace Polly.Contrib.Simmy.Specs.Fault
 
             executed.Should().BeFalse();
         }
+        #endregion
+
+        #region Cancellable scenarios
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_before_to_start_execution()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, CancellationToken, Exception> fault = (ctx, cts) =>
+            {
+                if (ctx["Message"] != null)
+                {
+                    Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                    return ex;
+                }
+
+                return new Exception();
+            };
+
+            Func<Context, CancellationToken, Double> injectionRate = (ctx, ct) =>
+            {
+                double rate = 0;
+                if (ctx["InjectionRate"] != null)
+                {
+                    rate = (double)ctx["InjectionRate"];
+                }
+
+                return rate;
+            };
+
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+            {
+                return (bool)ctx["ShouldFail"];
+            };
+
+            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                cts.Cancel();
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_enabled_config_delegate()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, CancellationToken, Exception> fault = (ctx, cts) =>
+            {
+                if (ctx["Message"] != null)
+                {
+                    Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                    return ex;
+                }
+
+                return new Exception();
+            };
+
+            Func<Context, CancellationToken, Double> injectionRate = (ctx, ct) =>
+            {
+                double rate = 0;
+                if (ctx["InjectionRate"] != null)
+                {
+                    rate = (double)ctx["InjectionRate"];
+                }
+
+                return rate;
+            };
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    cts.Cancel();
+                    return (bool)ctx["ShouldFail"];
+                };
+
+                var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_injectionrate_config_delegate()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, CancellationToken, Exception> fault = (ctx, cts) =>
+            {
+                if (ctx["Message"] != null)
+                {
+                    Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                    return ex;
+                }
+
+                return new Exception();
+            };
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    return (bool)ctx["ShouldFail"];
+                };
+
+                Func<Context, CancellationToken, Double> injectionRate = (ctx, ct) =>
+                {
+                    double rate = 0;
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        rate = (double)ctx["InjectionRate"];
+                    }
+
+                    cts.Cancel();
+                    return rate;
+                };
+
+                var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFault_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_fault_config_delegate()
+        {
+            string failureMessage = "Failure Message";
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            context["Message"] = failureMessage;
+            context["InjectionRate"] = 0.6;
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    return (bool)ctx["ShouldFail"];
+                };
+
+                Func<Context, CancellationToken, Double> injectionRate = (ctx, ct) =>
+                {
+                    double rate = 0;
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        rate = (double)ctx["InjectionRate"];
+                    }
+
+                    return rate;
+                };
+
+                Func<Context, CancellationToken, Exception> fault = (ctx, ct) =>
+                {
+                    cts.Cancel();
+                    if (ctx["Message"] != null)
+                    {
+                        Exception ex = new InvalidOperationException(ctx["Message"].ToString());
+                        return ex;
+                    }
+
+                    return new Exception();
+                };
+
+                var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+
+                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                    .ShouldThrow<OperationCanceledException>();
+            }
+
+            executed.Should().BeFalse();
+        }
+
         #endregion
     }
 }

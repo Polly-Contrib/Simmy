@@ -14,7 +14,7 @@ namespace Polly.Contrib.Simmy
             Func<Context, CancellationToken, Task<bool>> enabled, 
             bool continueOnCapturedContext)
         {
-            // to prevent execute config delegates if user cancels the whole execution before to start.
+            // to prevent execute config delegates if token is signaled before to start.
             cancellationToken.ThrowIfCancellationRequested();
 
             if (!await enabled(context, cancellationToken).ConfigureAwait(continueOnCapturedContext))
@@ -22,12 +22,12 @@ namespace Polly.Contrib.Simmy
                 return false;
             }
 
-            // to prevent execute injectionRate config delegate if user cancels execution on enable configuration delegate.
+            // to prevent execute injectionRate config delegate if token is signaled on enable configuration delegate.
             cancellationToken.ThrowIfCancellationRequested();
 
             double injectionThreshold = await injectionRate(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
 
-            // to prevent execute further config delegates if user cancels execution on injectionRate configuration delegate.
+            // to prevent execute further config delegates if token is signaled on injectionRate configuration delegate.
             cancellationToken.ThrowIfCancellationRequested();
 
             if (injectionThreshold < 0)
@@ -56,7 +56,7 @@ namespace Polly.Contrib.Simmy
                 await injectedBehaviour(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
 
-            // to prevent execute the user's action if user cancels execution on injectedBehaviour configuration delegate.
+            // to prevent execute the user's action if token is signaled on injectedBehaviour delegate.
             cancellationToken.ThrowIfCancellationRequested();
             return await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
         }
@@ -74,7 +74,7 @@ namespace Polly.Contrib.Simmy
             {
                 Exception exception = await injectedException(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
 
-                // to prevent throws the exception if user cancels execution on injectedException configuration delegate.
+                // to prevent throws the exception if token is signaled on injectedException configuration delegate.
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (exception != null)
@@ -100,6 +100,8 @@ namespace Polly.Contrib.Simmy
                 return await injectedResult(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
 
+            // to prevent inject the result if token is signaled on injectedResult delegate.
+            cancellationToken.ThrowIfCancellationRequested();
             return await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
         }
     }
