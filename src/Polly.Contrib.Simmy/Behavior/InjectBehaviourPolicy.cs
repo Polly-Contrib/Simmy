@@ -8,9 +8,9 @@ namespace Polly.Contrib.Simmy.Behavior
     /// </summary>
     public class InjectBehaviourPolicy : Simmy.MonkeyPolicy
     {
-        private readonly Action<Context> _behaviour;
+        private readonly Action<Context, CancellationToken> _behaviour;
 
-        internal InjectBehaviourPolicy(Action<Context> behaviour, Func<Context, double> injectionRate, Func<Context, bool> enabled) 
+        internal InjectBehaviourPolicy(Action<Context, CancellationToken> behaviour, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
@@ -23,7 +23,7 @@ namespace Polly.Contrib.Simmy.Behavior
                 action,
                 context,
                 cancellationToken,
-                (ctx, ct) => _behaviour(ctx),
+                (ctx, ct) => _behaviour(ctx, ct),
                 InjectionRate,
                 Enabled);
         }
@@ -34,8 +34,8 @@ namespace Polly.Contrib.Simmy.Behavior
     /// <typeparam name="TResult">The type of return values this policy will handle.</typeparam>
     public class InjectBehaviourPolicy<TResult> : MonkeyPolicy<TResult>
     {
-        private readonly Action<Context> _behaviour;
-        internal InjectBehaviourPolicy(Action<Context> behaviour, Func<Context, double> injectionRate, Func<Context, bool> enabled)
+        private readonly Action<Context, CancellationToken> _behaviour;
+        internal InjectBehaviourPolicy(Action<Context, CancellationToken> behaviour, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
@@ -48,7 +48,7 @@ namespace Polly.Contrib.Simmy.Behavior
                 action,
                 context,
                 cancellationToken,
-                (ctx, ct) => _behaviour(ctx),
+                (ctx, ct) => _behaviour(ctx, ct),
                 InjectionRate,
                 Enabled);
         }

@@ -7,14 +7,29 @@ namespace Polly.Contrib.Simmy
 {
     internal static class AsyncMonkeyEngine
     {
-        private static async Task<bool> ShouldInjectAsync(Context context, Func<Context, Task<double>> injectionRate, Func<Context, Task<bool>> enabled, bool continueOnCapturedContext)
+        private static async Task<bool> ShouldInjectAsync(
+            Context context, 
+            CancellationToken cancellationToken, 
+            Func<Context, CancellationToken, Task<double>> injectionRate, 
+            Func<Context, CancellationToken, Task<bool>> enabled, 
+            bool continueOnCapturedContext)
         {
-            if (!await enabled(context).ConfigureAwait(continueOnCapturedContext))
+            // to prevent execute config delegates if token is signaled before to start.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!await enabled(context, cancellationToken).ConfigureAwait(continueOnCapturedContext))
             {
                 return false;
             }
 
-            double injectionThreshold = await injectionRate(context).ConfigureAwait(continueOnCapturedContext);
+            // to prevent execute injectionRate config delegate if token is signaled on enable configuration delegate.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            double injectionThreshold = await injectionRate(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+
+            // to prevent execute further config delegates if token is signaled on injectionRate configuration delegate.
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (injectionThreshold < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.");
@@ -24,7 +39,7 @@ namespace Polly.Contrib.Simmy
                 throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.");
             }
 
-            return  ThreadSafeRandom_LockOncePerThread.NextDouble() < injectionThreshold;
+            return ThreadSafeRandom_LockOncePerThread.NextDouble() < injectionThreshold;
         }
 
         internal static async Task<TResult> InjectBehaviourImplementationAsync<TResult>(
@@ -32,15 +47,17 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Task> injectedBehaviour,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled,
             bool continueOnCapturedContext)
         {
-            if (await ShouldInjectAsync(context, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
+            if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
                 await injectedBehaviour(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
 
+            // to prevent execute the user's action if token is signaled on injectedBehaviour delegate.
+            cancellationToken.ThrowIfCancellationRequested();
             return await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
         }
 
@@ -49,13 +66,17 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Task<Exception>> injectedException,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled,
             bool continueOnCapturedContext)
         {
-            if (await ShouldInjectAsync(context, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
+            if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
                 Exception exception = await injectedException(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+
+                // to prevent throws the exception if token is signaled on injectedException configuration delegate.
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (exception != null)
                 {
                     throw exception;
@@ -70,15 +91,17 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Task<TResult>> injectedResult,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled,
             bool continueOnCapturedContext)
         {
-            if (await ShouldInjectAsync(context, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
+            if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
                 return await injectedResult(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
 
+            // to prevent inject the result if token is signaled on injectedResult delegate.
+            cancellationToken.ThrowIfCancellationRequested();
             return await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
         }
     }

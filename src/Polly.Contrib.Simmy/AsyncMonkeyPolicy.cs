@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Polly.Contrib.Simmy
@@ -8,10 +9,10 @@ namespace Polly.Contrib.Simmy
     /// </summary>
     public abstract class AsyncMonkeyPolicy : AsyncPolicy, IMonkeyPolicy
     {
-        internal Func<Context, Task<Double>> InjectionRate { get; }
-        internal Func<Context, Task<bool>> Enabled { get; }
+        internal Func<Context, CancellationToken, Task<Double>> InjectionRate { get; }
+        internal Func<Context, CancellationToken, Task<bool>> Enabled { get; }
 
-        internal AsyncMonkeyPolicy(Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
+        internal AsyncMonkeyPolicy(Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
         {
             InjectionRate = injectionRate ?? throw new ArgumentNullException(nameof(injectionRate));
             Enabled = enabled ?? throw new ArgumentNullException(nameof(enabled));
@@ -24,10 +25,10 @@ namespace Polly.Contrib.Simmy
     /// <typeparam name="TResult">The type of return values this policy will handle.</typeparam>
     public abstract class AsyncMonkeyPolicy<TResult> : AsyncPolicy<TResult>, IMonkeyPolicy<TResult>
     {
-        internal Func<Context, Task<Double>> InjectionRate { get; }
-        internal Func<Context, Task<bool>> Enabled { get; }
+        internal Func<Context, CancellationToken, Task<Double>> InjectionRate { get; }
+        internal Func<Context, CancellationToken, Task<bool>> Enabled { get; }
 
-        internal AsyncMonkeyPolicy(Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled) 
+        internal AsyncMonkeyPolicy(Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled) 
         {
             InjectionRate = injectionRate ?? throw new ArgumentNullException(nameof(injectionRate));
             Enabled = enabled ?? throw new ArgumentNullException(nameof(enabled));

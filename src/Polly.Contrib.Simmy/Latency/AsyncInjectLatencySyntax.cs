@@ -23,8 +23,8 @@ namespace Polly.Contrib.Simmy
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<TimeSpan> LatencyProvider(Context _, CancellationToken __) => Task.FromResult(latency);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
-            Task<bool> EnabledLambda(Context _) => Task.FromResult(enabled());
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __) => Task.FromResult(enabled());
 
             return new AsyncInjectLatencyPolicy(LatencyProvider, InjectionRateLambda, EnabledLambda);
         }
@@ -40,12 +40,12 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectLatencyPolicy InjectLatencyAsync(
             TimeSpan latency,
             Double injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<TimeSpan> LatencyProvider(Context _, CancellationToken __) => Task.FromResult(latency);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
 
             return new AsyncInjectLatencyPolicy(LatencyProvider, InjectionRateLambda, enabled);
         }
@@ -60,8 +60,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectLatencyPolicy InjectLatencyAsync(
             TimeSpan latency,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
@@ -80,8 +80,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectLatencyPolicy InjectLatencyAsync(
             Func<Context, CancellationToken, Task<TimeSpan>> latency,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (latency == null) throw new ArgumentNullException(nameof(latency));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
@@ -109,8 +109,8 @@ namespace Polly.Contrib.Simmy
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<TimeSpan> LatencyProvider(Context _, CancellationToken __) => Task.FromResult(latency);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
-            Task<bool> EnabledLambda(Context _) => Task.FromResult(enabled());
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __) => Task.FromResult(enabled());
 
             return new AsyncInjectLatencyPolicy<TResult>(LatencyProvider, InjectionRateLambda, EnabledLambda);
         }
@@ -126,12 +126,12 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectLatencyPolicy<TResult> InjectLatencyAsync<TResult>(
             TimeSpan latency,
             Double injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<TimeSpan> LatencyProvider(Context _, CancellationToken __) => Task.FromResult(latency);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
 
             return new AsyncInjectLatencyPolicy<TResult>(LatencyProvider, InjectionRateLambda, enabled);
         }
@@ -146,8 +146,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectLatencyPolicy<TResult> InjectLatencyAsync<TResult>(
             TimeSpan latency,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
@@ -166,8 +166,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectLatencyPolicy<TResult> InjectLatencyAsync<TResult>(
             Func<Context, CancellationToken, Task<TimeSpan>> latency,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (latency == null) throw new ArgumentNullException(nameof(latency));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));

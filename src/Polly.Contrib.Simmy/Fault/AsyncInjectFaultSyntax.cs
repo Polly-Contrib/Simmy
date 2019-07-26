@@ -23,8 +23,8 @@ namespace Polly.Contrib.Simmy
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<Exception> FaultLambda(Context _, CancellationToken __) => Task.FromResult<Exception>(fault);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult<Double>(injectionRate);
-            Task<bool> EnabledLambda(Context _) => Task.FromResult<bool>(enabled());
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult<Double>(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __) => Task.FromResult<bool>(enabled());
 
             return new AsyncInjectOutcomePolicy(FaultLambda, InjectionRateLambda, EnabledLambda);
         }
@@ -40,12 +40,12 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectOutcomePolicy InjectFaultAsync(
             Exception fault,
             Double injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<Exception> FaultLambda(Context _, CancellationToken __) => Task.FromResult<Exception>(fault);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult<Double>(injectionRate);
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult<Double>(injectionRate);
 
             return new AsyncInjectOutcomePolicy(FaultLambda, InjectionRateLambda, enabled);
         }
@@ -60,8 +60,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectOutcomePolicy InjectFaultAsync(
             Func<Context, CancellationToken, Task<Exception>> faultProvider,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (faultProvider == null) throw new ArgumentNullException(nameof(faultProvider));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
@@ -90,8 +90,8 @@ namespace Polly.Contrib.Simmy
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<Exception> FaultLambda(Context _, CancellationToken __) => Task.FromResult<Exception>(fault);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult<Double>(injectionRate);
-            Task<bool> EnabledLambda(Context _) => Task.FromResult<bool>(enabled());
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult<Double>(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __) => Task.FromResult<bool>(enabled());
 
             return new AsyncInjectOutcomePolicy<TResult>((Func<Context, CancellationToken, Task<Exception>>)FaultLambda, InjectionRateLambda, EnabledLambda);
         }
@@ -107,12 +107,12 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectOutcomePolicy<TResult> InjectFaultAsync<TResult>(
             Exception fault,
             Double injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<Exception> FaultLambda(Context _, CancellationToken __) => Task.FromResult<Exception>(fault);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult<Double>(injectionRate);
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult<Double>(injectionRate);
 
             return new AsyncInjectOutcomePolicy<TResult>((Func<Context, CancellationToken, Task<Exception>>)FaultLambda, InjectionRateLambda, enabled);
         }
@@ -127,8 +127,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectOutcomePolicy<TResult> InjectFaultAsync<TResult>(
             Func<Context, CancellationToken, Task<Exception>> faultProvider,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (faultProvider == null) throw new ArgumentNullException(nameof(faultProvider));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
@@ -156,8 +156,8 @@ namespace Polly.Contrib.Simmy
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<TResult> FaultLambda(Context _, CancellationToken __) => Task.FromResult<TResult>(fault);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult<Double>(injectionRate);
-            Task<bool> EnabledLambda(Context _)
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult<Double>(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __)
             {
                 return Task.FromResult<bool>(enabled());
             }
@@ -176,12 +176,12 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectOutcomePolicy<TResult> InjectFaultAsync<TResult>(
             TResult fault,
             Double injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task<TResult> FaultLambda(Context _, CancellationToken __) => Task.FromResult<TResult>(fault);
-            Task<double> InjectionRateLambda(Context _) => Task.FromResult<Double>(injectionRate);
+            Task<double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult<Double>(injectionRate);
 
             return new AsyncInjectOutcomePolicy<TResult>((Func<Context, CancellationToken, Task<TResult>>)FaultLambda, InjectionRateLambda, enabled);
         }
@@ -196,8 +196,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectOutcomePolicy<TResult> InjectFaultAsync<TResult>(
             Func<Context, CancellationToken, Task<TResult>> fault,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (fault == null) throw new ArgumentNullException(nameof(fault));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));

@@ -27,8 +27,8 @@ namespace Polly.Contrib.Simmy
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
             Task BehaviourLambda(Context _, CancellationToken __) => behaviour();
-            Task<Double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
-            Task<bool> EnabledLambda(Context _) => enabled();
+            Task<Double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __) => enabled();
 
             return InjectBehaviourAsync(BehaviourLambda, InjectionRateLambda, EnabledLambda);
         }
@@ -49,8 +49,8 @@ namespace Polly.Contrib.Simmy
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            Task<Double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
-            Task<bool> EnabledLambda(Context _) => enabled();
+            Task<Double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
+            Task<bool> EnabledLambda(Context _, CancellationToken __) => enabled();
 
             return InjectBehaviourAsync(behaviour, InjectionRateLambda, EnabledLambda);
         }
@@ -66,12 +66,12 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(
             Func<Context, CancellationToken, Task> behaviour,
             Double injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            Task<Double> InjectionRateLambda(Context _) => Task.FromResult(injectionRate);
+            Task<Double> InjectionRateLambda(Context _, CancellationToken __) => Task.FromResult(injectionRate);
 
             return InjectBehaviourAsync(behaviour, InjectionRateLambda, enabled);
         }
@@ -86,8 +86,8 @@ namespace Polly.Contrib.Simmy
         /// <returns>The policy instance.</returns>
         public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(
             Func<Context, CancellationToken, Task> behaviour,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
         {
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));

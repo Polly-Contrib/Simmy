@@ -6,18 +6,29 @@ namespace Polly.Contrib.Simmy
 {
     internal static class MonkeyEngine
     {
-        private static bool ShouldInject(Context context, Func<Context, double> injectionRate, Func<Context, bool> enabled)
+        private static bool ShouldInject(Context context, CancellationToken cancellationToken, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
         {
-            if (!enabled(context))
+            // to prevent execute config delegates if token is signaled before to start.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!enabled(context, cancellationToken))
             {
                 return false;
             }
 
-            double injectionThreshold = injectionRate(context);
+            // to prevent execute injectionRate config delegate if token is signaled on enable configuration delegate.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            double injectionThreshold = injectionRate(context, cancellationToken);
+
+            // to prevent execute further config delegates if token is signaled on injectionRate configuration delegate.
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (injectionThreshold < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.");
             }
+
             if (injectionThreshold > 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.");
@@ -31,14 +42,16 @@ namespace Polly.Contrib.Simmy
             Context context,
             CancellationToken cancellationToken,
             Action<Context, CancellationToken> injectedBehaviour,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
-            if (ShouldInject(context, injectionRate, enabled))
+            if (ShouldInject(context, cancellationToken, injectionRate, enabled))
             {
                 injectedBehaviour(context, cancellationToken);
             }
 
+            // to prevent execute the user's action if token is signaled on injectedBehaviour delegate.
+            cancellationToken.ThrowIfCancellationRequested();
             return action(context, cancellationToken);
         }
 
@@ -46,18 +59,22 @@ namespace Polly.Contrib.Simmy
             Func<Context, CancellationToken, TResult> action,
             Context context,
             CancellationToken cancellationToken,
-            Func<Context, Exception> injectedException,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, Exception> injectedException,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
-            if (ShouldInject(context, injectionRate, enabled))
+            if (ShouldInject(context, cancellationToken, injectionRate, enabled))
             {
-                Exception exception = injectedException(context);
+                Exception exception = injectedException(context, cancellationToken);
+
+                // to prevent throws the exception if token is signaled on injectedException configuration delegate.
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (exception != null)
                 {
-                    throw exception; 
+                    throw exception;
                 }
-                
+
             }
 
             return action(context, cancellationToken);
@@ -67,15 +84,17 @@ namespace Polly.Contrib.Simmy
             Func<Context, CancellationToken, TResult> action,
             Context context,
             CancellationToken cancellationToken,
-            Func<Context, TResult> injectedResult,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, TResult> injectedResult,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
-            if (ShouldInject(context, injectionRate, enabled))
+            if (ShouldInject(context, cancellationToken, injectionRate, enabled))
             {
-                return injectedResult(context);
+                return injectedResult(context, cancellationToken);
             }
 
+            // to prevent inject the result if token is signaled on injectedResult delegate.
+            cancellationToken.ThrowIfCancellationRequested();
             return action(context, cancellationToken);
         }
     }
