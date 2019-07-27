@@ -40,7 +40,7 @@ namespace Polly.Contrib.Simmy.Latency
                     cancellationToken.ThrowIfCancellationRequested();
                     await SystemClock.SleepAsync(
                             latency,
-                            InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
+                            cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext);
                 },
                 InjectionRate,
@@ -84,7 +84,7 @@ namespace Polly.Contrib.Simmy.Latency
                     cancellationToken.ThrowIfCancellationRequested();
                     await SystemClock.SleepAsync(
                             latency,
-                            InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
+                            cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext);
                 },
                 InjectionRate,
