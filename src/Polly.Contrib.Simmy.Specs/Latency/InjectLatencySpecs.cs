@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using FluentAssertions;
 using Polly.Contrib.Simmy.Utilities;
+using Polly.Timeout;
 using Polly.Utilities;
 using Xunit;
 
@@ -534,6 +536,62 @@ namespace Polly.Contrib.Simmy.Specs.Latency
 
             executed.Should().BeFalse();
             _totalTimeSlept.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(TimeoutStrategy.Optimistic)]
+        [InlineData(TimeoutStrategy.Pessimistic)]
+        public void InjectLatency_With_Context_Should_not_inject_the_whole_latency_if_user_cancelationtoken_is_signaled_from_timeout(TimeoutStrategy timeoutStrategy)
+        {
+            SystemClock.Reset();
+            var timeout = TimeSpan.FromSeconds(5);
+            var delay = TimeSpan.FromSeconds(10);
+            var context = new Context();
+            context["ShouldInjectLatency"] = true;
+            context["Enabled"] = true;
+            context["InjectionRate"] = 0.6;
+
+            Boolean executed = false;
+            Stopwatch watch = new Stopwatch();
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            {
+                Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+                {
+                    return (bool)ctx["Enabled"];
+                };
+
+                Func<Context, CancellationToken, double> injectionRate = (ctx, ct) =>
+                {
+                    if (ctx["InjectionRate"] != null)
+                    {
+                        return (double)ctx["InjectionRate"];
+                    }
+
+                    return 0;
+                };
+
+                Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
+                {
+                    if ((bool)ctx["ShouldInjectLatency"])
+                    {
+                        return delay;
+                    }
+
+                    return TimeSpan.FromMilliseconds(0);
+                };
+
+                var policy = Policy.Timeout(timeout, timeoutStrategy)
+                    .Wrap(MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled));
+
+                watch.Start();
+                policy.Invoking(x => { x.Execute((ctx, ct) => { executed = true; }, context, cts.Token); })
+                    .ShouldThrow<TimeoutRejectedException>();
+                watch.Stop();
+            }
+
+            executed.Should().BeFalse();
+            watch.Elapsed.Should().BeCloseTo(timeout, ((int)TimeSpan.FromSeconds(3).TotalMilliseconds));
         }
 
         #endregion
