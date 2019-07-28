@@ -9,8 +9,6 @@ namespace Polly.Contrib.Simmy.Latency
     /// </summary>
     public class InjectLatencyPolicy : MonkeyPolicy
     {
-        internal static readonly CancellationToken DefaultCancellationForInjectedLatency = CancellationToken.None; // It is intended that injected latency is not susceptible to cancellation. (TO CONFIRM)
-
         private readonly Func<Context, CancellationToken, TimeSpan> _latencyProvider;
 
         internal InjectLatencyPolicy(
@@ -35,7 +33,7 @@ namespace Polly.Contrib.Simmy.Latency
 
                     // to prevent inject latency if token was signaled on latency configuration delegate.
                     cancellationToken.ThrowIfCancellationRequested();
-                    SystemClock.Sleep(latency, DefaultCancellationForInjectedLatency);
+                    SystemClock.Sleep(latency, cancellationToken);
                 },
                 InjectionRate,
                 Enabled);
@@ -72,11 +70,10 @@ namespace Polly.Contrib.Simmy.Latency
 
                     // to prevent inject latency if token was signaled on latency configuration delegate.
                     cancellationToken.ThrowIfCancellationRequested();
-                    SystemClock.Sleep(latency, InjectLatencyPolicy.DefaultCancellationForInjectedLatency);
+                    SystemClock.Sleep(latency, cancellationToken);
                 },
                 InjectionRate,
                 Enabled);
         }
-
     }
 }
