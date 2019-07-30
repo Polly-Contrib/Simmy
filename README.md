@@ -43,27 +43,27 @@ Simmy offers the following chaos-injection policies:
 ## Inject fault
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectFault(
-    Exception | Func<Context, Exception> fault,
-    double | Func<Context, double> injectionRate, 
-    Func<bool> | Func<Context, bool> enabled 
+    Exception | Func<Context, CancellationToken, Exception> fault,
+    double | Func<Context, CancellationToken, double> injectionRate, 
+    Func<bool> | Func<Context, CancellationToken, bool> enabled 
 );
 ```
 
 ## Inject latency
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectLatency(
-    TimeSpan | Func<Context, Timespan> latency,
-    double | Func<Context, double> injectionRate, 
-    Func<bool> | Func<Context, bool> enabled 
+    TimeSpan | Func<Context, CancellationToken, Timespan> latency,
+    double | Func<Context, CancellationToken, double> injectionRate, 
+    Func<bool> | Func<Context, CancellationToken, bool> enabled 
 );
 ```
 
 ## Inject behavior
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectBehaviour(
-    Action | Action<Context> behaviour,
-    double | Func<Context, double> injectionRate, 
-    Func<bool> | Func<Context, bool> enabled 
+    Action | Action<Context, CancellationToken> behaviour,
+    double | Func<Context, CancellationToken, double> injectionRate, 
+    Func<bool> | Func<Context, CancellationToken, bool> enabled 
 );
 ```
 
