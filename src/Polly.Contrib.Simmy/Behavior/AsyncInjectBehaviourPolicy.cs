@@ -11,7 +11,7 @@ namespace Polly.Contrib.Simmy.Behavior
     {
         private readonly Func<Context, CancellationToken, Task> _behaviour;
 
-        internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
+        internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
@@ -40,7 +40,7 @@ namespace Polly.Contrib.Simmy.Behavior
     {
         private readonly Func<Context, CancellationToken, Task> _behaviour;
 
-        internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, Task<Double>> injectionRate, Func<Context, Task<bool>> enabled)
+        internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));

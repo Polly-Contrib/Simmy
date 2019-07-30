@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Polly.Contrib.Simmy.Fault;
 
 namespace Polly.Contrib.Simmy
@@ -20,9 +21,9 @@ namespace Polly.Contrib.Simmy
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            Exception FaultLambda(Context _) => fault;
-            double InjectionRateLambda(Context _) => injectionRate;
-            bool EnabledLambda(Context _) => enabled();
+            Exception FaultLambda(Context _, CancellationToken __) => fault;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
+            bool EnabledLambda(Context _, CancellationToken __) => enabled();
 
             return new InjectOutcomePolicy(FaultLambda, InjectionRateLambda, EnabledLambda);
         }
@@ -38,12 +39,12 @@ namespace Polly.Contrib.Simmy
         public static InjectOutcomePolicy InjectFault(
             Exception fault,
             Double injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            Exception FaultLambda(Context _) => fault;
-            double InjectionRateLambda(Context _) => injectionRate;
+            Exception FaultLambda(Context _, CancellationToken __) => fault;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
 
             return new InjectOutcomePolicy(FaultLambda, InjectionRateLambda, enabled);
         }
@@ -57,9 +58,9 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectOutcomePolicy InjectFault(
-            Func<Context, Exception> faultProvider,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, Exception> faultProvider,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (faultProvider == null) throw new ArgumentNullException(nameof(faultProvider));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
@@ -87,11 +88,11 @@ namespace Polly.Contrib.Simmy
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            Exception FaultLambda(Context _) => fault;
-            double InjectionRateLambda(Context _) => injectionRate;
-            bool EnabledLambda(Context _) => enabled();
+            Exception FaultLambda(Context _, CancellationToken __) => fault;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
+            bool EnabledLambda(Context _, CancellationToken __) => enabled();
 
-            return new InjectOutcomePolicy<TResult>((Func<Context, Exception>)FaultLambda, InjectionRateLambda, EnabledLambda);
+            return new InjectOutcomePolicy<TResult>((Func<Context, CancellationToken, Exception>)FaultLambda, InjectionRateLambda, EnabledLambda);
         }
 
         /// <summary>
@@ -105,14 +106,14 @@ namespace Polly.Contrib.Simmy
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             Exception fault,
             Double injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            Exception FaultLambda(Context _) => fault;
-            double InjectionRateLambda(Context _) => injectionRate;
+            Exception FaultLambda(Context _, CancellationToken __) => fault;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
 
-            return new InjectOutcomePolicy<TResult>((Func<Context, Exception>)FaultLambda, InjectionRateLambda, enabled);
+            return new InjectOutcomePolicy<TResult>((Func<Context, CancellationToken, Exception>)FaultLambda, InjectionRateLambda, enabled);
         }
 
         /// <summary>
@@ -124,9 +125,9 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
-            Func<Context, Exception> faultProvider,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, Exception> faultProvider,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (faultProvider == null) throw new ArgumentNullException(nameof(faultProvider));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));
@@ -154,11 +155,11 @@ namespace Polly.Contrib.Simmy
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            TResult FaultLambda(Context _) => fault;
-            double InjectionRateLambda(Context _) => injectionRate;
-            bool EnabledLambda(Context _) => enabled();
+            TResult FaultLambda(Context _, CancellationToken __) => fault;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
+            bool EnabledLambda(Context _, CancellationToken __) => enabled();
 
-            return new InjectOutcomePolicy<TResult>((Func<Context, TResult>)FaultLambda, InjectionRateLambda, EnabledLambda);
+            return new InjectOutcomePolicy<TResult>((Func<Context, CancellationToken, TResult>)FaultLambda, InjectionRateLambda, EnabledLambda);
         }
 
         /// <summary>
@@ -172,14 +173,14 @@ namespace Polly.Contrib.Simmy
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             TResult fault,
             Double injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            TResult FaultLambda(Context _) => fault;
-            double InjectionRateLambda(Context _) => injectionRate;
+            TResult FaultLambda(Context _, CancellationToken __) => fault;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
 
-            return new InjectOutcomePolicy<TResult>((Func<Context, TResult>)FaultLambda, InjectionRateLambda, enabled);
+            return new InjectOutcomePolicy<TResult>((Func<Context, CancellationToken, TResult>)FaultLambda, InjectionRateLambda, enabled);
         }
 
         /// <summary>
@@ -191,9 +192,9 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
-            Func<Context, TResult> faultProvider,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, TResult> faultProvider,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (faultProvider == null) throw new ArgumentNullException(nameof(faultProvider));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Polly.Contrib.Simmy.Behavior;
 
 namespace Polly.Contrib.Simmy
@@ -24,9 +25,9 @@ namespace Polly.Contrib.Simmy
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            void BehaviourLambda(Context _) => behaviour();
-            double InjectionRateLambda(Context _) => injectionRate;
-            bool EnabledLambda(Context _) => enabled();
+            void BehaviourLambda(Context _, CancellationToken __) => behaviour();
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
+            bool EnabledLambda(Context _, CancellationToken __) => enabled();
 
             return InjectBehaviour<TResult>(BehaviourLambda, InjectionRateLambda, EnabledLambda);
         }
@@ -40,15 +41,15 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in context free mode</param>
         /// <returns>The policy instance.</returns>
         public static InjectBehaviourPolicy<TResult> InjectBehaviour<TResult>(
-            Action<Context> behaviour,
+            Action<Context, CancellationToken> behaviour,
             Double injectionRate,
             Func<bool> enabled)
         {
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            double InjectionRateLambda(Context _) => injectionRate;
-            bool EnabledLambda(Context _) => enabled();
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
+            bool EnabledLambda(Context _, CancellationToken __) => enabled();
 
             return InjectBehaviour<TResult>(behaviour, InjectionRateLambda, EnabledLambda);
         }
@@ -62,14 +63,14 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectBehaviourPolicy<TResult> InjectBehaviour<TResult>(
-            Action<Context> behaviour,
+            Action<Context, CancellationToken> behaviour,
             Double injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (enabled == null) throw new ArgumentNullException(nameof(enabled));
 
-            double InjectionRateLambda(Context _) => injectionRate;
+            double InjectionRateLambda(Context _, CancellationToken __) => injectionRate;
             return InjectBehaviour<TResult>(behaviour, InjectionRateLambda, enabled);
         }
 
@@ -82,9 +83,9 @@ namespace Polly.Contrib.Simmy
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
         public static InjectBehaviourPolicy<TResult> InjectBehaviour<TResult>(
-            Action<Context> behaviour,
-            Func<Context, Double> injectionRate,
-            Func<Context, bool> enabled)
+            Action<Context, CancellationToken> behaviour,
+            Func<Context, CancellationToken, Double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
         {
             if (behaviour == null) throw new ArgumentNullException(nameof(behaviour));
             if (injectionRate == null) throw new ArgumentNullException(nameof(injectionRate));

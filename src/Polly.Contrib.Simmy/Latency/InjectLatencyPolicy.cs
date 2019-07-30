@@ -9,14 +9,12 @@ namespace Polly.Contrib.Simmy.Latency
     /// </summary>
     public class InjectLatencyPolicy : MonkeyPolicy
     {
-        internal static readonly CancellationToken DefaultCancellationForInjectedLatency = CancellationToken.None; // It is intended that injected latency is not susceptible to cancellation. (TO CONFIRM)
-
-        private readonly Func<Context, TimeSpan> _latencyProvider;
+        private readonly Func<Context, CancellationToken, TimeSpan> _latencyProvider;
 
         internal InjectLatencyPolicy(
-            Func<Context, TimeSpan> latencyProvider,
-            Func<Context, double> injectionRate, 
-            Func<Context, bool> enabled) 
+            Func<Context, CancellationToken, TimeSpan> latencyProvider,
+            Func<Context, CancellationToken, double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
@@ -29,7 +27,14 @@ namespace Polly.Contrib.Simmy.Latency
                 action,
                 context,
                 cancellationToken,
-                (ctx, ct) => SystemClock.Sleep(_latencyProvider(ctx), DefaultCancellationForInjectedLatency),
+                (ctx, ct) =>
+                {
+                    var latency = _latencyProvider(ctx, ct);
+
+                    // to prevent inject latency if token was signaled on latency configuration delegate.
+                    cancellationToken.ThrowIfCancellationRequested();
+                    SystemClock.Sleep(latency, cancellationToken);
+                },
                 InjectionRate,
                 Enabled);
         }
@@ -41,12 +46,12 @@ namespace Polly.Contrib.Simmy.Latency
     /// <typeparam name="TResult">The type of return values this policy will handle.</typeparam>
     public class InjectLatencyPolicy<TResult> : MonkeyPolicy<TResult>
     {
-        private readonly Func<Context, TimeSpan> _latencyProvider;
+        private readonly Func<Context, CancellationToken, TimeSpan> _latencyProvider;
 
         internal InjectLatencyPolicy(
-            Func<Context, TimeSpan> latencyProvider,
-            Func<Context, double> injectionRate,
-            Func<Context, bool> enabled)
+            Func<Context, CancellationToken, TimeSpan> latencyProvider,
+            Func<Context, CancellationToken, double> injectionRate,
+            Func<Context, CancellationToken, bool> enabled)
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
@@ -59,10 +64,16 @@ namespace Polly.Contrib.Simmy.Latency
                 action,
                 context,
                 cancellationToken,
-                (ctx, ct) => SystemClock.Sleep(_latencyProvider(ctx), InjectLatencyPolicy.DefaultCancellationForInjectedLatency),
+                (ctx, ct) =>
+                {
+                    var latency = _latencyProvider(ctx, ct);
+
+                    // to prevent inject latency if token was signaled on latency configuration delegate.
+                    cancellationToken.ThrowIfCancellationRequested();
+                    SystemClock.Sleep(latency, cancellationToken);
+                },
                 InjectionRate,
                 Enabled);
         }
-
     }
 }

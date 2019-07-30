@@ -14,8 +14,8 @@ namespace Polly.Contrib.Simmy.Latency
 
         internal AsyncInjectLatencyPolicy(
             Func<Context, CancellationToken, Task<TimeSpan>> latencyProvider,
-            Func<Context, Task<Double>> injectionRate, 
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate, 
+            Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
@@ -32,10 +32,17 @@ namespace Polly.Contrib.Simmy.Latency
                 action,
                 context,
                 cancellationToken,
-                async (ctx, ct) => await SystemClock.SleepAsync(
-                        await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext),
-                        InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
-                    .ConfigureAwait(continueOnCapturedContext),
+                async (ctx, ct) =>
+                {
+                    var latency = await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+
+                    // to prevent inject latency if token was signaled on latency configuration delegate.
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await SystemClock.SleepAsync(
+                            latency,
+                            cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext);
+                },
                 InjectionRate,
                 Enabled,
                 continueOnCapturedContext);
@@ -51,8 +58,8 @@ namespace Polly.Contrib.Simmy.Latency
 
         internal AsyncInjectLatencyPolicy(
             Func<Context, CancellationToken, Task<TimeSpan>> latencyProvider,
-            Func<Context, Task<Double>> injectionRate,
-            Func<Context, Task<bool>> enabled)
+            Func<Context, CancellationToken, Task<Double>> injectionRate,
+            Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
@@ -69,10 +76,17 @@ namespace Polly.Contrib.Simmy.Latency
                 action,
                 context,
                 cancellationToken,
-                async (ctx, ct) => await SystemClock.SleepAsync(
-                    await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext),
-                        InjectLatencyPolicy.DefaultCancellationForInjectedLatency)
-                    .ConfigureAwait(continueOnCapturedContext),
+                async (ctx, ct) =>
+                {
+                    var latency = await _latencyProvider(ctx, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+
+                    // to prevent inject latency if token was signaled on latency configuration delegate.
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await SystemClock.SleepAsync(
+                            latency,
+                            cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext);
+                },
                 InjectionRate,
                 Enabled,
                 continueOnCapturedContext);
