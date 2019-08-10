@@ -179,6 +179,9 @@ Simmy was [the brainchild of](https://github.com/App-vNext/Polly/issues/499) [@m
 
 ### Blog posts
 * [Simmy, the monkey for making chaos](http://elvanydev.com/chaos-injection-with-simmy/) -by [Geovanny Alzate Sandoval](https://twitter.com/geovany0114)
+* [Simmy and Azure App Configuration](http://elvanydev.com/simmy-with-azure-app-configuration/) -by [Geovanny Alzate Sandoval](https://twitter.com/geovany0114)
+* [Simmy Chaos Engine for .NET – Part 1, Injecting Faults](https://nodogmablog.bryanhogan.net/2019/07/simmy-chaos-engine-for-net-part-1-injecting-faults/) -by [Bryan Hogan](https://twitter.com/bryanjhogan)
+* [Simmy Chaos Engine for .NET – Part 2, Resilience and Injected Faults](https://nodogmablog.bryanhogan.net/2019/07/simmy-chaos-engine-for-net-part-2-resilience-and-injected-faults/) -by [Bryan Hogan](https://twitter.com/bryanjhogan)
 
 ### Samples
 * [Dylan Reisenberger](http://www.thepollyproject.org/author/dylan/) presents an [intentionally simple example](https://github.com/Polly-Contrib/Polly.Contrib.SimmyDemo_WebApi) .NET Core WebAPI app demonstrating how we can set up Simmy chaos policies for certain environments and without changing any existing configuration code injecting faults or chaos by modifying external configuration.
