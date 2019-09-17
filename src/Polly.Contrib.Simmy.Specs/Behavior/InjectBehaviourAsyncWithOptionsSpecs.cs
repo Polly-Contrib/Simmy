@@ -7,7 +7,7 @@ using Xunit;
 namespace Polly.Contrib.Simmy.Specs.Behavior
 {
     [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
-    public class InjectBehaviourAsyncWithOptionsSpecs
+    public class InjectBehaviourAsyncWithOptionsSpecs : IDisposable
     {
         public InjectBehaviourAsyncWithOptionsSpecs()
         {
