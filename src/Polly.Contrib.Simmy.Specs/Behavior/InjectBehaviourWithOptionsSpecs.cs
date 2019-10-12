@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Polly.Contrib.Simmy.Behavior.Options;
 using Polly.Contrib.Simmy.Utilities;
 using Xunit;
 
@@ -24,12 +25,10 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviour(options =>
-            {
-                options.InjectionRate = 0.6;
-                options.Enabled = () => false;
-                options.Behaviour = () => { injectedBehaviourExecuted = true; };
-            });
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { injectedBehaviourExecuted = true; })
+                    .InjectionRate(0.6)
+                    .Enabled(false));
 
             policy.Execute(() => { userDelegateExecuted = true; });
 
@@ -43,12 +42,10 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviour(options =>
-            {
-                options.InjectionRate = 0.6;
-                options.Enabled = () => true;
-                options.Behaviour = () => { injectedBehaviourExecuted = true; };
-            });
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { injectedBehaviourExecuted = true; })
+                    .InjectionRate(0.6)
+                    .Enabled());
 
             policy.Execute(() => { userDelegateExecuted = true; });
 
@@ -62,12 +59,10 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviour(options =>
-            {
-                options.InjectionRate = 0.4;
-                options.Enabled = () => true;
-                options.Behaviour = () => { injectedBehaviourExecuted = true; };
-            });
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { injectedBehaviourExecuted = true; })
+                    .InjectionRate(0.4)
+                    .Enabled());
 
             policy.Execute(() => { userDelegateExecuted = true; });
 
@@ -81,16 +76,14 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviour(options =>
-            {
-                options.InjectionRate = 0.6;
-                options.Enabled = () => true;
-                options.Behaviour = () =>
-                {
-                    userDelegateExecuted.Should().BeFalse(); // Not yet executed at the time the injected behaviour runs.
-                    injectedBehaviourExecuted = true;
-                };
-            });
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() =>
+                    {
+                        userDelegateExecuted.Should().BeFalse(); // Not yet executed at the time the injected behaviour runs.
+                        injectedBehaviourExecuted = true;
+                    })
+                    .InjectionRate(0.6)
+                    .Enabled());
 
             policy.Execute(() => { userDelegateExecuted = true; });
 

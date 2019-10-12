@@ -2,6 +2,7 @@
 using Polly.Contrib.Simmy.Utilities;
 using System;
 using System.Threading.Tasks;
+using Polly.Contrib.Simmy.Behavior.Options;
 using Xunit;
 
 namespace Polly.Contrib.Simmy.Specs.Behavior
@@ -25,16 +26,15 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(options =>
-            {
-                options.InjectionRate = 0.6;
-                options.Enabled = () => false;
-                options.Behaviour = () =>
-                {
-                    injectedBehaviourExecuted = true;
-                    return Task.CompletedTask;
-                };
-            });
+            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+                with.Behaviour(() =>
+                    {
+                        injectedBehaviourExecuted = true;
+                        return Task.CompletedTask;
+                    })
+                    .InjectionRate(0.6)
+                    .Enabled(false)
+                );
 
             policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
 
@@ -48,16 +48,15 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(options =>
-            {
-                options.InjectionRate = 0.6;
-                options.Enabled = () => true;
-                options.Behaviour = () =>
-                {
-                    injectedBehaviourExecuted = true;
-                    return Task.CompletedTask;
-                };
-            });
+            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+                with.Behaviour(() =>
+                    {
+                        injectedBehaviourExecuted = true;
+                        return Task.CompletedTask;
+                    })
+                    .InjectionRate(0.6)
+                    .Enabled()
+            );
 
             policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
 
@@ -71,16 +70,15 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(options =>
-            {
-                options.InjectionRate = 0.4;
-                options.Enabled = () => true;
-                options.Behaviour = () =>
-                {
-                    injectedBehaviourExecuted = true;
-                    return Task.CompletedTask;
-                };
-            });
+            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+                with.Behaviour(() =>
+                    {
+                        injectedBehaviourExecuted = true;
+                        return Task.CompletedTask;
+                    })
+                    .InjectionRate(0.4)
+                    .Enabled(false)
+            );
 
             policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
 
@@ -94,17 +92,16 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(options =>
-            {
-                options.InjectionRate = 0.6;
-                options.Enabled = () => true;
-                options.Behaviour = () =>
-                {
-                    userDelegateExecuted.Should().BeFalse(); // Not yet executed at the time the injected behaviour runs.
-                    injectedBehaviourExecuted = true;
-                    return Task.CompletedTask;
-                };
-            });
+            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+                with.Behaviour(() =>
+                    {
+                        userDelegateExecuted.Should().BeFalse(); // Not yet executed at the time the injected behaviour runs.
+                        injectedBehaviourExecuted = true;
+                        return Task.CompletedTask;
+                    })
+                    .InjectionRate(0.6)
+                    .Enabled()
+            );
 
             policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
 

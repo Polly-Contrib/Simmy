@@ -30,29 +30,5 @@ namespace Polly.Contrib.Simmy
                 options.InjectionRate,
                 options.Enabled);
         }
-
-        /// <summary>
-        /// Builds a <see cref="InjectBehaviourPolicy"/> which executes a behaviour if <paramref name="configureOptions.Enabled"/> returns true and
-        /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
-        /// </summary>
-        /// <param name="configureOptions">A callback to configure policy options.</param>
-        /// <returns>The policy instance.</returns>
-        public static InjectBehaviourPolicy InjectBehaviour(Action<InjectBehaviourBasicOptions> configureOptions)
-        {
-            var options = new InjectBehaviourBasicOptions();
-            configureOptions.Invoke(options);
-
-            if (options.Behaviour == null) throw new ArgumentNullException(nameof(options.Behaviour));
-            if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
-
-            void BehaviourLambda(Context _, CancellationToken __) => options.Behaviour();
-            double InjectionRateLambda(Context _, CancellationToken __) => options.InjectionRate;
-            bool EnabledLambda(Context _, CancellationToken __) => options.Enabled();
-
-            return new InjectBehaviourPolicy(
-                BehaviourLambda,
-                InjectionRateLambda,
-                EnabledLambda);
-        }
     }
 }
