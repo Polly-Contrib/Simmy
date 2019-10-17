@@ -17,6 +17,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free mode</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourOptions> instead.")]
         public static InjectBehaviourPolicy InjectBehaviour(
             Action behaviour,
             Double injectionRate,
@@ -40,6 +41,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free mode</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourOptions> instead.")]
         public static InjectBehaviourPolicy InjectBehaviour(
             Action<Context, CancellationToken> behaviour,
             Double injectionRate,
@@ -62,6 +64,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourOptions> instead.")]
         public static InjectBehaviourPolicy InjectBehaviour(
             Action<Context, CancellationToken> behaviour,
             Double injectionRate,
@@ -82,6 +85,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourOptions> instead.")]
         public static InjectBehaviourPolicy InjectBehaviour(
             Action<Context, CancellationToken> behaviour,
             Func<Context, CancellationToken, Double> injectionRate,

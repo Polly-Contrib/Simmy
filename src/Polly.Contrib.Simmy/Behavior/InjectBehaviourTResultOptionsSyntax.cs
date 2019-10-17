@@ -1,6 +1,6 @@
-﻿using Polly.Contrib.Simmy.Behavior.Options;
-using System;
+﻿using System;
 using Polly.Contrib.Simmy.Behavior;
+using Polly.Contrib.Simmy.Behavior.Options;
 
 namespace Polly.Contrib.Simmy
 {
@@ -10,21 +10,21 @@ namespace Polly.Contrib.Simmy
     public partial class MonkeyPolicy
     {
         /// <summary>
-        /// Builds a <see cref="AsyncInjectBehaviourPolicy"/> which executes a behaviour if <paramref name="configureOptions.Enabled"/> returns true and
+        /// Builds a <see cref="InjectBehaviourPolicy"/> which executes a behaviour if <paramref name="configureOptions.Enabled"/> returns true and
         /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(Action<InjectBehaviourAsyncOptions> configureOptions)
+        public static InjectBehaviourPolicy<TResult> InjectBehaviour<TResult>(Action<InjectBehaviourOptions> configureOptions)
         {
-            var options = new InjectBehaviourAsyncOptions();
+            var options = new InjectBehaviourOptions();
             configureOptions.Invoke(options);
 
             if (options.Behaviour == null) throw new ArgumentNullException(nameof(options.Behaviour));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
-            return new AsyncInjectBehaviourPolicy(options);
+            return new InjectBehaviourPolicy<TResult>(options);
         }
     }
 }

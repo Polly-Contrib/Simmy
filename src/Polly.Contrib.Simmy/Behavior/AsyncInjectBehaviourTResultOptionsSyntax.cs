@@ -15,7 +15,7 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(Action<InjectBehaviourAsyncOptions> configureOptions)
+        public static AsyncInjectBehaviourPolicy<TResult> InjectBehaviourAsync<TResult>(Action<InjectBehaviourAsyncOptions> configureOptions)
         {
             var options = new InjectBehaviourAsyncOptions();
             configureOptions.Invoke(options);
@@ -24,7 +24,7 @@ namespace Polly.Contrib.Simmy
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
-            return new AsyncInjectBehaviourPolicy(options);
+            return new AsyncInjectBehaviourPolicy<TResult>(options);
         }
     }
 }

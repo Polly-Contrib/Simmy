@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Polly.Contrib.Simmy.Behavior.Options;
 
 namespace Polly.Contrib.Simmy.Behavior
 {
@@ -10,10 +11,17 @@ namespace Polly.Contrib.Simmy.Behavior
     {
         private readonly Action<Context, CancellationToken> _behaviour;
 
+        [Obsolete]
         internal InjectBehaviourPolicy(Action<Context, CancellationToken> behaviour, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
+        }
+
+        internal InjectBehaviourPolicy(InjectBehaviourOptions options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _behaviour = options.Behaviour ?? throw new ArgumentNullException(nameof(options.Behaviour));
         }
 
         /// <inheritdoc/>
@@ -35,10 +43,18 @@ namespace Polly.Contrib.Simmy.Behavior
     public class InjectBehaviourPolicy<TResult> : MonkeyPolicy<TResult>
     {
         private readonly Action<Context, CancellationToken> _behaviour;
+
+        [Obsolete]
         internal InjectBehaviourPolicy(Action<Context, CancellationToken> behaviour, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
+        }
+
+        internal InjectBehaviourPolicy(InjectBehaviourOptions options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _behaviour = options.Behaviour ?? throw new ArgumentNullException(nameof(options.Behaviour));
         }
 
         /// <inheritdoc/>

@@ -90,5 +90,63 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             userDelegateExecuted.Should().BeTrue();
             injectedBehaviourExecuted.Should().BeTrue();
         }
+
+        #region invalid threshold on configuration and execution time
+
+        [Fact]
+        public void Should_throw_error_on_configuration_time_when_threshold_is_negative()
+        {
+            Action act = () => MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { })
+                    .Enabled()
+                    .InjectionRate(-1)
+            );
+
+            act.ShouldThrow<ArgumentOutOfRangeException>()
+                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.\r\nParameter name: injectionThreshold");
+        }
+
+        [Fact]
+        public void Should_throw_error_on_configuration_time_when_threshold_is_greater_than_one()
+        {
+            Action act = () => MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { })
+                    .Enabled()
+                    .InjectionRate(1.1)
+            );
+
+            act.ShouldThrow<ArgumentOutOfRangeException>()
+                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.\r\nParameter name: injectionThreshold");
+        }
+
+        [Fact]
+        public void Should_throw_error_on_execution_time_when_threshold_is_is_negative()
+        {
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { })
+                    .Enabled()
+                    .InjectionRate((_, __) => -1d)
+            );
+
+            policy.Invoking(x => x.Execute(() => { }))
+                .ShouldThrow<ArgumentOutOfRangeException>()
+                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.\r\nParameter name: injectionThreshold");
+        }
+
+        [Fact]
+        public void Should_throw_error_on_execution_time_when_threshold_is_greater_than_one()
+        {
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() => { })
+                    .Enabled()
+                    .InjectionRate((_, __) => 1.1)
+            );
+
+            policy.Invoking(x => x.Execute(() => { }))
+                .ShouldThrow<ArgumentOutOfRangeException>()
+                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.\r\nParameter name: injectionThreshold");
+        }
+
+        #endregion
     }
 }

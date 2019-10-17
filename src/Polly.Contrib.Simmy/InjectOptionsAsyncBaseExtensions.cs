@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly.Contrib.Simmy.Utilities;
 
 namespace Polly.Contrib.Simmy
 {
@@ -44,6 +45,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         public static InjectOptionsAsyncBase InjectionRate(this InjectOptionsAsyncBase options, Double injectionRate)
         {
+            injectionRate.EnsureInjectionThreshold();
             options.InjectionRate = (_, __) => Task.FromResult(injectionRate);
             return options;
         }

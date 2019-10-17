@@ -1,6 +1,5 @@
 ﻿using Polly.Contrib.Simmy.Behavior.Options;
 using System;
-using System.Threading;
 using Polly.Contrib.Simmy.Behavior;
 
 namespace Polly.Contrib.Simmy
@@ -25,10 +24,7 @@ namespace Polly.Contrib.Simmy
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
-            return new InjectBehaviourPolicy(
-                options.Behaviour,
-                options.InjectionRate,
-                options.Enabled);
+            return new InjectBehaviourPolicy(options);
         }
     }
 }

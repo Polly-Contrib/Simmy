@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly.Contrib.Simmy.Behavior.Options;
 
 namespace Polly.Contrib.Simmy.Behavior
 {
@@ -11,10 +12,17 @@ namespace Polly.Contrib.Simmy.Behavior
     {
         private readonly Func<Context, CancellationToken, Task> _behaviour;
 
+        [Obsolete]
         internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
+        }
+
+        internal AsyncInjectBehaviourPolicy(InjectBehaviourAsyncOptions options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _behaviour = options.Behaviour ?? throw new ArgumentNullException(nameof(options.Behaviour));
         }
 
         /// <inheritdoc/>
@@ -40,10 +48,17 @@ namespace Polly.Contrib.Simmy.Behavior
     {
         private readonly Func<Context, CancellationToken, Task> _behaviour;
 
+        [Obsolete]
         internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _behaviour = behaviour ?? throw new ArgumentNullException(nameof(behaviour));
+        }
+
+        internal AsyncInjectBehaviourPolicy(InjectBehaviourAsyncOptions options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _behaviour = options.Behaviour ?? throw new ArgumentNullException(nameof(options.Behaviour));
         }
 
         /// <inheritdoc/>

@@ -1,16 +1,16 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
+using Polly.Contrib.Simmy.Specs.Helpers;
 using Polly.Contrib.Simmy.Utilities;
-using System;
-using System.Threading.Tasks;
-using Polly.Contrib.Simmy.Behavior.Options;
 using Xunit;
+using Polly.Contrib.Simmy.Behavior.Options;
 
 namespace Polly.Contrib.Simmy.Specs.Behavior
 {
     [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
-    public class InjectBehaviourAsyncWithOptionsSpecs : IDisposable
+    public class InjectBehaviourTResultWithOptionsSpecs : IDisposable
     {
-        public InjectBehaviourAsyncWithOptionsSpecs()
+        public InjectBehaviourTResultWithOptionsSpecs()
         {
             ThreadSafeRandom_LockOncePerThread.NextDouble = () => 0.5;
         }
@@ -26,17 +26,12 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() =>
-                    {
-                        injectedBehaviourExecuted = true;
-                        return Task.CompletedTask;
-                    })
+            var policy = MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { injectedBehaviourExecuted = true; })
                     .InjectionRate(0.6)
-                    .Enabled(false)
-                );
+                    .Enabled(false));
 
-            policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
+            policy.Execute(() => { userDelegateExecuted = true; return ResultPrimitive.Good; });
 
             userDelegateExecuted.Should().BeTrue();
             injectedBehaviourExecuted.Should().BeFalse();
@@ -48,17 +43,12 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() =>
-                    {
-                        injectedBehaviourExecuted = true;
-                        return Task.CompletedTask;
-                    })
+            var policy = MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { injectedBehaviourExecuted = true; })
                     .InjectionRate(0.6)
-                    .Enabled()
-            );
+                    .Enabled());
 
-            policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
+            policy.Execute(() => { userDelegateExecuted = true; return ResultPrimitive.Good; });
 
             userDelegateExecuted.Should().BeTrue();
             injectedBehaviourExecuted.Should().BeTrue();
@@ -70,17 +60,12 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() =>
-                    {
-                        injectedBehaviourExecuted = true;
-                        return Task.CompletedTask;
-                    })
+            var policy = MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { injectedBehaviourExecuted = true; })
                     .InjectionRate(0.4)
-                    .Enabled(false)
-            );
+                    .Enabled());
 
-            policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
+            policy.Execute(() => { userDelegateExecuted = true; return ResultPrimitive.Good; });
 
             userDelegateExecuted.Should().BeTrue();
             injectedBehaviourExecuted.Should().BeFalse();
@@ -92,18 +77,16 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             Boolean userDelegateExecuted = false;
             Boolean injectedBehaviourExecuted = false;
 
-            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+            var policy = MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
                 with.Behaviour(() =>
                     {
                         userDelegateExecuted.Should().BeFalse(); // Not yet executed at the time the injected behaviour runs.
                         injectedBehaviourExecuted = true;
-                        return Task.CompletedTask;
                     })
                     .InjectionRate(0.6)
-                    .Enabled()
-            );
+                    .Enabled());
 
-            policy.ExecuteAsync(() => { userDelegateExecuted = true; return Task.CompletedTask; });
+            policy.Execute(() => { userDelegateExecuted = true; return ResultPrimitive.Good; });
 
             userDelegateExecuted.Should().BeTrue();
             injectedBehaviourExecuted.Should().BeTrue();
@@ -114,8 +97,8 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
         [Fact]
         public void Should_throw_error_on_configuration_time_when_threshold_is_negative()
         {
-            Action act = () => MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() => Task.CompletedTask)
+            Action act = () => MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { })
                     .Enabled()
                     .InjectionRate(-1)
             );
@@ -127,8 +110,8 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
         [Fact]
         public void Should_throw_error_on_configuration_time_when_threshold_is_greater_than_one()
         {
-            Action act = () => MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() => Task.CompletedTask)
+            Action act = () => MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { })
                     .Enabled()
                     .InjectionRate(1.1)
             );
@@ -140,13 +123,13 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
         [Fact]
         public void Should_throw_error_on_execution_time_when_threshold_is_is_negative()
         {
-            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() => Task.CompletedTask)
+            var policy = MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { })
                     .Enabled()
-                    .InjectionRate((_, __) => Task.FromResult(-1d))
+                    .InjectionRate((_, __) => -1d)
             );
 
-            policy.Awaiting(async x => await x.ExecuteAsync(() => Task.CompletedTask))
+            policy.Invoking(x => x.Execute(() => ResultPrimitive.Good))
                 .ShouldThrow<ArgumentOutOfRangeException>()
                 .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.\r\nParameter name: injectionThreshold");
         }
@@ -154,13 +137,13 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
         [Fact]
         public void Should_throw_error_on_execution_time_when_threshold_is_greater_than_one()
         {
-            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
-                with.Behaviour(() => Task.CompletedTask)
+            var policy = MonkeyPolicy.InjectBehaviour<ResultPrimitive>(with =>
+                with.Behaviour(() => { })
                     .Enabled()
-                    .InjectionRate((_, __) => Task.FromResult(1.1))
+                    .InjectionRate((_, __) => 1.1)
             );
 
-            policy.Awaiting(async x => await x.ExecuteAsync(() => Task.CompletedTask))
+            policy.Invoking(x => x.Execute(() => ResultPrimitive.Good))
                 .ShouldThrow<ArgumentOutOfRangeException>()
                 .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.\r\nParameter name: injectionThreshold");
         }
