@@ -10,6 +10,7 @@ using Xunit;
 namespace Polly.Contrib.Simmy.Specs.Latency
 {
     [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
+    [Obsolete]
     public class InjectLatencySpecs : IDisposable
     {
         private int _totalTimeSlept = 0;

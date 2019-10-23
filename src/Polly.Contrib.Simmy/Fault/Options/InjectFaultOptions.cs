@@ -8,6 +8,9 @@ namespace Polly.Contrib.Simmy.Fault.Options
     /// </summary>
     public class InjectFaultOptions<TResult> : InjectOptionsBase
     {
+        /// <summary>
+        /// Outcome Delegate to be executed
+        /// </summary>
         internal Func<Context, CancellationToken, TResult> Outcome { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free fashion</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy InjectLatency(
             TimeSpan latency,
             Double injectionRate,
@@ -32,6 +33,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy InjectLatency(
             TimeSpan latency,
             Double injectionRate,
@@ -50,6 +52,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy InjectLatency(
             TimeSpan latency,
             Func<Context, CancellationToken, Double> injectionRate,
@@ -69,6 +72,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy InjectLatency(
             Func<Context, CancellationToken, TimeSpan> latency,
             Func<Context, CancellationToken, Double> injectionRate,
@@ -92,6 +96,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free fashion</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
             TimeSpan latency,
             Double injectionRate,
@@ -110,6 +115,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
             TimeSpan latency,
             Double injectionRate,
@@ -128,6 +134,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
             TimeSpan latency,
             Func<Context, CancellationToken, Double> injectionRate,
@@ -147,6 +154,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectLatencyOptions> instead.")]
         public static InjectLatencyPolicy<TResult> InjectLatency<TResult>(
             Func<Context, CancellationToken, TimeSpan> latency,
             Func<Context, CancellationToken, Double> injectionRate,

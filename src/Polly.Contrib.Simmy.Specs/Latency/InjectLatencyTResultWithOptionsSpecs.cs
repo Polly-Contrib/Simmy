@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 using FluentAssertions;
-using Polly.Utilities;
 using Polly.Contrib.Simmy.Specs.Helpers;
 using Polly.Contrib.Simmy.Utilities;
+using Polly.Utilities;
 using Xunit;
+using Polly.Contrib.Simmy.Latency.Options;
+using System.Threading;
 using Polly.Timeout;
 
 namespace Polly.Contrib.Simmy.Specs.Latency
 {
     [Collection(Constants.AmbientContextDependentTestCollection)]
-    [Obsolete]
-    public class InjectLatencyTResultSpecs : IDisposable
+    public class InjectLatencyTResultWithOptionsSpecs : IDisposable
     {
         private int _totalTimeSlept = 0;
 
-        public InjectLatencyTResultSpecs()
+        public InjectLatencyTResultWithOptionsSpecs()
         {
             ThreadSafeRandom_LockOncePerThread.NextDouble = () => 0.5;
             SystemClock.Sleep = (span, ct) => _totalTimeSlept += span.Milliseconds;
@@ -35,8 +35,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_Context_Free_Should_Introduce_Delay_If_Enabled()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, 0.6, () => true);
             var executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(0.6)
+                    .Enabled()
+            );
 
             Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action);
@@ -49,8 +53,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         [Fact]
         public void InjectLatency_Context_Free_Should_Not_Introduce_Delay_If_Dissabled()
         {
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(TimeSpan.FromMilliseconds(500), 0.6, () => false);
             var executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(TimeSpan.FromMilliseconds(500))
+                    .InjectionRate(0.6)
+                    .Enabled(false)
+            );
 
             Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action);
@@ -64,8 +72,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_Context_Free_Should_Introduce_Delay_If_InjectionRate_Is_Covered()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, 0.6, () => true);
             var executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(0.6)
+                    .Enabled()
+            );
 
             Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action);
@@ -79,8 +91,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_Context_Free_Should_Not_Introduce_Delay_If_InjectionRate_Is_Not_Covered()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, 0.3, () => true);
             var executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(0.3)
+                    .Enabled()
+            );
 
             Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action);
@@ -98,16 +114,19 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_Enabled_Lambda_Should_Introduce_Delay()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["Enabled"] = true;
+            var context = new Context { ["Enabled"] = true };
 
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, 0.6, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(0.6)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -121,16 +140,19 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_Enabled_Lambda_Should_Not_Introduce_Delay()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["Enabled"] = false;
+            var context = new Context { ["Enabled"] = false };
 
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, 0.6, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(0.6)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -144,16 +166,19 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_Enabled_Lambda_Should_Not_Introduce_Delay_If_InjectionRate_Is_Not_Covered()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["Enabled"] = true;
+            var context = new Context { ["Enabled"] = true };
 
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
                 return ((bool)ctx["Enabled"]);
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, 0.3, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(0.3)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -167,9 +192,11 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_InjectionRate_Lambda_Should_Introduce_Delay()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
@@ -186,8 +213,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return 0;
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, injectionRate, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -201,9 +232,11 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_InjectionRate_Lambda_Should_Not_Introduce_Delay()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.3;
+            var context = new Context
+            {
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.3
+            };
 
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
             {
@@ -220,8 +253,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return 0;
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(delay, injectionRate, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(delay)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -235,10 +272,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_Latency_Lambda_Should_Introduce_Delay()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
@@ -265,8 +304,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return 0;
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(latencyProvider, injectionRate, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(latencyProvider)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -280,10 +323,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_Latency_Lambda_Should_Not_Introduce_Delay()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = false;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = false,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
@@ -310,8 +355,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return 0;
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(latencyProvider, injectionRate, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(latencyProvider)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -325,10 +374,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_With_Latency_Lambda_Should_Not_Introduce_Delay_If_InjectionRate_Is_Not_Covered()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.3;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.3
+            };
 
             Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
@@ -355,8 +406,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 return 0;
             };
 
-            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(latencyProvider, injectionRate, enabled);
             Boolean executed = false;
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(latencyProvider)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
 
             Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
             var result = policy.Execute(action, context);
@@ -373,10 +428,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_before_to_start_execution()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
@@ -405,7 +462,11 @@ namespace Polly.Contrib.Simmy.Specs.Latency
 
             Boolean executed = false;
             Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
-            var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+            var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                with.Latency(latencyProvider)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
 
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
@@ -423,10 +484,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_enabled_config_delegate()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
@@ -459,7 +522,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                     return (bool)ctx["Enabled"];
                 };
 
-                var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+                var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                    with.Latency(latencyProvider)
+                        .InjectionRate(injectionRate)
+                        .EnabledWhen(enabled)
+                );
+
                 policy.Invoking(x => x.Execute(action, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
             }
@@ -472,10 +540,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_injectionrate_config_delegate()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, TimeSpan> latencyProvider = (ctx, ct) =>
             {
@@ -509,7 +579,11 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                     return 0;
                 };
 
-                var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+                var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                    with.Latency(latencyProvider)
+                        .InjectionRate(injectionRate)
+                        .EnabledWhen(enabled)
+                );
 
                 policy.Invoking(x => x.Execute(action, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
@@ -523,10 +597,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
         public void InjectLatency_With_Context_Should_not_execute_user_delegate_if_user_cancelationtoken_cancelled_on_latency_config_delegate()
         {
             var delay = TimeSpan.FromMilliseconds(500);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Boolean executed = false;
             using (CancellationTokenSource cts = new CancellationTokenSource())
@@ -558,7 +634,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                     return TimeSpan.FromMilliseconds(0);
                 };
 
-                var policy = MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled);
+                var policy = MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                    with.Latency(latencyProvider)
+                        .InjectionRate(injectionRate)
+                        .EnabledWhen(enabled)
+                );
+
                 Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
 
                 policy.Invoking(x => x.Execute(action, context, cts.Token))
@@ -577,10 +658,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
             SystemClock.Reset();
             var timeout = TimeSpan.FromSeconds(5);
             var delay = TimeSpan.FromSeconds(10);
-            var context = new Context();
-            context["ShouldInjectLatency"] = true;
-            context["Enabled"] = true;
-            context["InjectionRate"] = 0.6;
+            var context = new Context
+            {
+                ["ShouldInjectLatency"] = true,
+                ["Enabled"] = true,
+                ["InjectionRate"] = 0.6
+            };
 
             Boolean executed = false;
             Stopwatch watch = new Stopwatch();
@@ -615,7 +698,12 @@ namespace Polly.Contrib.Simmy.Specs.Latency
                 Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
 
                 var policy = Policy.Timeout(timeout, timeoutStrategy)
-                    .Wrap(MonkeyPolicy.InjectLatency(latencyProvider, injectionRate, enabled));
+                    .Wrap(
+                        MonkeyPolicy.InjectLatency<ResultPrimitive>(with =>
+                            with.Latency(latencyProvider)
+                                .InjectionRate(injectionRate)
+                                .EnabledWhen(enabled)
+                        ));
 
                 watch.Start();
                 policy.Invoking(x => { x.Execute(action, context, cts.Token); })

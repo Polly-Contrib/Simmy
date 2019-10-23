@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly.Contrib.Simmy.Latency.Options;
 using Polly.Utilities;
 
 namespace Polly.Contrib.Simmy.Latency
@@ -12,6 +13,7 @@ namespace Polly.Contrib.Simmy.Latency
     {
         private readonly Func<Context, CancellationToken, Task<TimeSpan>> _latencyProvider;
 
+        [Obsolete]
         internal AsyncInjectLatencyPolicy(
             Func<Context, CancellationToken, Task<TimeSpan>> latencyProvider,
             Func<Context, CancellationToken, Task<Double>> injectionRate, 
@@ -21,6 +23,12 @@ namespace Polly.Contrib.Simmy.Latency
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
         }
         
+        internal AsyncInjectLatencyPolicy(InjectLatencyAsyncOptions options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _latencyProvider = options.Latency ?? throw new ArgumentNullException(nameof(options.Latency));
+        }
+
         /// <inheritdoc/>
         protected override Task<TResult> ImplementationAsync<TResult>(
             Func<Context, CancellationToken, Task<TResult>> action, 
@@ -56,6 +64,7 @@ namespace Polly.Contrib.Simmy.Latency
     {
         private readonly Func<Context, CancellationToken, Task<TimeSpan>> _latencyProvider;
 
+        [Obsolete]
         internal AsyncInjectLatencyPolicy(
             Func<Context, CancellationToken, Task<TimeSpan>> latencyProvider,
             Func<Context, CancellationToken, Task<Double>> injectionRate,
@@ -63,6 +72,12 @@ namespace Polly.Contrib.Simmy.Latency
             : base(injectionRate, enabled)
         {
             _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
+        }
+
+        internal AsyncInjectLatencyPolicy(InjectLatencyAsyncOptions options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _latencyProvider = options.Latency ?? throw new ArgumentNullException(nameof(options.Latency));
         }
 
         /// <inheritdoc/>

@@ -249,7 +249,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(with =>
                 with.Result(fault)
                     .InjectionRate(0.6)
-                    .Enabled()
+                    .EnabledWhen(enabled)
             );
 
             ResultPrimitive response = policy.Execute(action, context);
@@ -272,7 +272,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(with =>
                 with.Result(fault)
                     .InjectionRate(0.4)
-                    .Enabled()
+                    .EnabledWhen(enabled)
             );
 
             ResultPrimitive response = policy.Execute(action, context);

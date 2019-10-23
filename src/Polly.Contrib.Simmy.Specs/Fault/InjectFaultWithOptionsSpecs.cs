@@ -105,7 +105,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Context context = new Context { ["ShouldFail"] = true };
 
             var policy = MonkeyPolicy.InjectFault(with =>
-                with.Fault(new Exception("test"))
+                with.Fault(fault)
                     .InjectionRate(0.4)
                     .EnabledWhen((ctx, ct) => ((bool)ctx["ShouldFail"]))
             );
@@ -124,7 +124,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Context context = new Context { ["ShouldFail"] = false };
 
             var policy = MonkeyPolicy.InjectFault(with =>
-                with.Fault(new Exception("test"))
+                with.Fault(fault)
                     .InjectionRate(0.6)
                     .EnabledWhen((ctx, ct) => ((bool)ctx["ShouldFail"]))
             );
