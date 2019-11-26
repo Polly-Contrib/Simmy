@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Polly.Contrib.Simmy.Specs.Helpers;
 using Polly.Contrib.Simmy.Utilities;
-using Polly.Contrib.Simmy.Behavior.Options;
 using Xunit;
 using FluentAssertions;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using Polly.Contrib.Simmy.Fault;
+using Polly.Contrib.Simmy.Outcomes;
 
 namespace Polly.Contrib.Simmy
 {

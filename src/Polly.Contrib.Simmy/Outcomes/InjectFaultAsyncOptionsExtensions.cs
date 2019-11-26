@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Polly.Contrib.Simmy.Fault.Options
+namespace Polly.Contrib.Simmy
 {
     /// <summary>
     /// Allows configuration of fault for asynchronous monkey fault-injection policies.
@@ -48,7 +48,7 @@ namespace Polly.Contrib.Simmy.Fault.Options
         }
 
         /// <summary>
-        /// Configure fault to inject with the monkey policy.
+        /// Configure result to inject with the monkey policy.
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="result">The result to inject</param>
@@ -56,7 +56,7 @@ namespace Polly.Contrib.Simmy.Fault.Options
             Result(options, (_, __) => Task.FromResult(result));
 
         /// <summary>
-        /// Configure fault to inject with the monkey policy.
+        /// Configure result to inject with the monkey policy.
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="result">A delegate representing the result to inject.</param>

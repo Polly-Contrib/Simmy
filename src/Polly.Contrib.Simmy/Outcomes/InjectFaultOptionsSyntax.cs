@@ -1,6 +1,5 @@
 ﻿using System;
-using Polly.Contrib.Simmy.Fault;
-using Polly.Contrib.Simmy.Fault.Options;
+using Polly.Contrib.Simmy.Outcomes;
 
 namespace Polly.Contrib.Simmy
 {
@@ -15,10 +14,10 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static InjectOutcomePolicy InjectFault(Action<InjectFaultOptions<Exception>> configureOptions)
+        public static InjectOutcomePolicy InjectException(Action<InjectFaultOptions<Exception>> configureOptions)
         {
             var options = new InjectFaultOptions<Exception>();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
@@ -28,15 +27,15 @@ namespace Polly.Contrib.Simmy
         }
 
         /// <summary>
-        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a fault if <paramref name="configureOptions.Enabled"/> returns true and
+        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a result if <paramref name="configureOptions.Enabled"/> returns true and
         /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static InjectOutcomePolicy<TResult> InjectFault<TResult>(Action<InjectFaultOptions<TResult>> configureOptions)
+        public static InjectOutcomePolicy<TResult> InjectResult<TResult>(Action<InjectFaultOptions<TResult>> configureOptions)
         {
             var options = new InjectFaultOptions<TResult>();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
@@ -46,15 +45,15 @@ namespace Polly.Contrib.Simmy
         }
 
         /// <summary>
-        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a fault if <paramref name="configureOptions.Enabled"/> returns true and
+        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a fault as result if <paramref name="configureOptions.Enabled"/> returns true and
         /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static InjectOutcomePolicy<TResult> InjectFault<TResult>(Action<InjectFaultOptions<Exception>> configureOptions)
+        public static InjectOutcomePolicy<TResult> InjectResult<TResult>(Action<InjectFaultOptions<Exception>> configureOptions)
         {
             var options = new InjectFaultOptions<Exception>();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));

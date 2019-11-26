@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Polly.Contrib.Simmy.Fault;
+using Polly.Contrib.Simmy.Outcomes;
 
 namespace Polly.Contrib.Simmy
 {

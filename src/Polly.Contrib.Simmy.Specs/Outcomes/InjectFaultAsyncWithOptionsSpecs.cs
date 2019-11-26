@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Polly.Contrib.Simmy.Utilities;
 using Polly.Utilities;
 using Xunit;
-using Polly.Contrib.Simmy.Fault.Options;
-using System.Threading;
 
-namespace Polly.Contrib.Simmy.Specs.Fault
+namespace Polly.Contrib.Simmy.Specs.Outcomes
 {
     [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
     public class InjectFaultAsyncWithOptionsSpecs : IDisposable
@@ -29,7 +28,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             string exceptionMessage = "exceptionMessage";
             Exception fault = new Exception(exceptionMessage);
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(0.6)
                     .Enabled()
@@ -46,7 +45,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             Exception fault = new Exception();
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(0.3)
                     .Enabled()
@@ -63,7 +62,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             Exception fault = null;
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(0.3)
                     .Enabled()
@@ -87,7 +86,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 ["ShouldFail"] = true
             };
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(new Exception("test"))
                     .InjectionRate(0.6)
                     .EnabledWhen(async (ctx, ct) => await Task.FromResult((bool)ctx["ShouldFail"]))
@@ -108,7 +107,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 ["ShouldFail"] = true
             };
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(new Exception("test"))
                     .InjectionRate(0.4)
                     .EnabledWhen(async (ctx, ct) => await Task.FromResult((bool)ctx["ShouldFail"]))
@@ -128,7 +127,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 ["ShouldFail"] = false
             };
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(new Exception("test"))
                     .InjectionRate(0.6)
                     .EnabledWhen(async (ctx, ct) => await Task.FromResult((bool)ctx["ShouldFail"]))
@@ -152,7 +151,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) => Task.FromResult(true);
             Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) => Task.FromResult(-0.1);
             
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(injectionRate)
                     .EnabledWhen(enabled)
@@ -173,7 +172,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) => Task.FromResult(true);
             Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) => Task.FromResult(1.01);
             
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(injectionRate)
                     .EnabledWhen(enabled)
@@ -194,7 +193,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Func<Context, CancellationToken, Task<bool>> enabled = (ctx, ct) => Task.FromResult(true);
             Func<Context, CancellationToken, Task<Double>> injectionRate = (ctx, ct) => Task.FromResult(0.6);
             
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(injectionRate)
                     .EnabledWhen(enabled)
@@ -242,7 +241,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult((bool)ctx["ShouldFail"]);
             };
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(injectionRate)
                     .EnabledWhen(enabled)
@@ -300,7 +299,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return Task.FromResult((bool)ctx["ShouldFail"]);
             };
 
-            var policy = MonkeyPolicy.InjectFaultAsync(with =>
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                 with.Fault(fault)
                     .InjectionRate(injectionRate)
                     .EnabledWhen(enabled)
@@ -362,7 +361,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return Task.FromResult((bool)ctx["ShouldFail"]);
                 };
 
-                var policy = MonkeyPolicy.InjectFaultAsync(with =>
+                var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                     with.Fault(fault)
                         .InjectionRate(injectionRate)
                         .EnabledWhen(enabled)
@@ -420,7 +419,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return Task.FromResult(rate);
                 };
 
-                var policy = MonkeyPolicy.InjectFaultAsync(with =>
+                var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                     with.Fault(fault)
                         .InjectionRate(injectionRate)
                         .EnabledWhen(enabled)
@@ -478,7 +477,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return Task.FromResult(new Exception());
                 };
 
-                var policy = MonkeyPolicy.InjectFaultAsync(with =>
+                var policy = MonkeyPolicy.InjectExceptionAsync(with =>
                     with.Fault(fault)
                         .InjectionRate(injectionRate)
                         .EnabledWhen(enabled)

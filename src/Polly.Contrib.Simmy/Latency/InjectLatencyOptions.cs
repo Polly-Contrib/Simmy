@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
+using Polly.Contrib.Simmy.Latency;
 
-namespace Polly.Contrib.Simmy.Latency.Options
+namespace Polly.Contrib.Simmy
 {
     /// <summary>
     /// Options used to configure an <see cref="AsyncInjectLatencyPolicy"/>
     /// </summary>
-    public class InjectLatencyAsyncOptions : InjectOptionsAsyncBase
+    public class InjectLatencyOptions : InjectOptionsBase
     {
         /// <summary>
         /// Latency Delegate to be executed
         /// </summary>
-        internal Func<Context, CancellationToken, Task<TimeSpan>> Latency { get; set; }
+        internal Func<Context, CancellationToken, TimeSpan> Latency { get; set; }
     }
 }

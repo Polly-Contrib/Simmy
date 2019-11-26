@@ -4,13 +4,12 @@ using FluentAssertions;
 using Polly.Contrib.Simmy.Utilities;
 using Xunit;
 
-namespace Polly.Contrib.Simmy.Specs.Fault
+namespace Polly.Contrib.Simmy.Specs.Outcomes
 {
     [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
-    [Obsolete]
-    public class InjectFaultSpecs : IDisposable
+    public class InjectFaultWithOptionsSpecs : IDisposable
     {
-        public InjectFaultSpecs()
+        public InjectFaultWithOptionsSpecs()
         {
             ThreadSafeRandom_LockOncePerThread.NextDouble = () => 0.5;
         }
@@ -26,7 +25,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             string exceptionMessage = "exceptionMessage";
             Exception fault = new Exception(exceptionMessage);
-            var policy = MonkeyPolicy.InjectFault(fault, 0.6, () => true);
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(0.6)
+                    .Enabled()
+            );
 
             Boolean executed = false;
             policy.Invoking(x => x.Execute(() => { executed = true; }))
@@ -39,7 +43,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         public void InjectFault_Context_Free_Enabled_Should_execute_user_delegate()
         {
             Exception fault = new Exception("test");
-            var policy = MonkeyPolicy.InjectFault(fault, 0.3, () => true);
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(0.3)
+                    .Enabled()
+            );
 
             Boolean executed = false;
             policy.Invoking(x => x.Execute(() => { executed = true; }))
@@ -52,7 +61,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         public void InjectFault_Context_Free_Enabled_Should_execute_user_delegate_not_throw_if_injected_fault_is_permitted_null()
         {
             Exception fault = null;
-            var policy = MonkeyPolicy.InjectFault(fault, 0.6, () => true);
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(0.6)
+                    .Enabled()
+            );
 
             Boolean executed = false;
             policy.Invoking(x => x.Execute(() => { executed = true; }))
@@ -68,15 +82,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         public void InjectFault_With_Context_Should_not_execute_user_delegate()
         {
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = true;
-            var policy = MonkeyPolicy.InjectFault(
-                new Exception("test"),
-                0.6,
-                (ctx, ct) =>
-                {
-                    return ((bool)ctx["ShouldFail"]);
-                });
+            Context context = new Context { ["ShouldFail"] = true };
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(new Exception("test"))
+                    .InjectionRate(0.6)
+                    .EnabledWhen((ctx, ct) => ((bool)ctx["ShouldFail"]))
+            );
 
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<Exception>();
@@ -89,15 +101,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             Exception fault = new Exception("test");
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = true;
-            var policy = MonkeyPolicy.InjectFault(
-                new Exception("test"),
-                0.4,
-                (ctx, ct) =>
-                {
-                    return ((bool)ctx["ShouldFail"]);
-                });
+            Context context = new Context { ["ShouldFail"] = true };
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(0.4)
+                    .EnabledWhen((ctx, ct) => ((bool)ctx["ShouldFail"]))
+            );
 
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldNotThrow<Exception>();
@@ -110,15 +120,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             Exception fault = new Exception("test");
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = false;
-            var policy = MonkeyPolicy.InjectFault(
-                new Exception("test"),
-                0.6,
-                (ctx, ct) =>
-                {
-                    return ((bool)ctx["ShouldFail"]);
-                });
+            Context context = new Context { ["ShouldFail"] = false };
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(0.6)
+                    .EnabledWhen((ctx, ct) => ((bool)ctx["ShouldFail"]))
+            );
 
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldNotThrow<Exception>();
@@ -138,7 +146,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
             Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => -0.1;
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
+
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<ArgumentOutOfRangeException>();
 
@@ -154,7 +168,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
             Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => 1.01;
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
+
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<ArgumentOutOfRangeException>();
 
@@ -170,7 +190,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
             Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
             Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => 0.6;
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
+
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<Exception>();
 
@@ -181,11 +207,13 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         public void InjectFault_With_Context_Should_not_execute_user_delegate_with_all_context_set()
         {
             Boolean executed = false;
-            Context context = new Context();
             string failureMessage = "Failure Message";
-            context["ShouldFail"] = true;
-            context["Message"] = failureMessage;
-            context["InjectionRate"] = 0.6;
+            Context context = new Context
+            {
+                ["ShouldFail"] = true,
+                ["Message"] = failureMessage,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, Exception> fault = (ctx, ct) =>
             {
@@ -212,7 +240,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return ((bool)ctx["ShouldFail"]);
             };
 
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
+
             policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
                 .ShouldThrowExactly<InvalidOperationException>().WithMessage(failureMessage);
 
@@ -227,10 +260,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             string failureMessage = "Failure Message";
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = true;
-            context["Message"] = failureMessage;
-            context["InjectionRate"] = 0.6;
+            Context context = new Context
+            {
+                ["ShouldFail"] = true,
+                ["Message"] = failureMessage,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, Exception> fault = (ctx, cts) =>
             {
@@ -259,7 +294,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return (bool)ctx["ShouldFail"];
             };
 
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+            var policy = MonkeyPolicy.InjectException(with =>
+                with.Fault(fault)
+                    .InjectionRate(injectionRate)
+                    .EnabledWhen(enabled)
+            );
+
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 cts.Cancel();
@@ -276,10 +316,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             string failureMessage = "Failure Message";
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = true;
-            context["Message"] = failureMessage;
-            context["InjectionRate"] = 0.6;
+            Context context = new Context
+            {
+                ["ShouldFail"] = true,
+                ["Message"] = failureMessage,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, Exception> fault = (ctx, cts) =>
             {
@@ -311,7 +353,11 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return (bool)ctx["ShouldFail"];
                 };
 
-                var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+                var policy = MonkeyPolicy.InjectException(with =>
+                    with.Fault(fault)
+                        .InjectionRate(injectionRate)
+                        .EnabledWhen(enabled)
+                );
 
                 policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
@@ -325,10 +371,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             string failureMessage = "Failure Message";
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = true;
-            context["Message"] = failureMessage;
-            context["InjectionRate"] = 0.6;
+            Context context = new Context
+            {
+                ["ShouldFail"] = true,
+                ["Message"] = failureMessage,
+                ["InjectionRate"] = 0.6
+            };
 
             Func<Context, CancellationToken, Exception> fault = (ctx, cts) =>
             {
@@ -360,7 +408,11 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return rate;
                 };
 
-                var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+                var policy = MonkeyPolicy.InjectException(with =>
+                    with.Fault(fault)
+                        .InjectionRate(injectionRate)
+                        .EnabledWhen(enabled)
+                );
 
                 policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
@@ -374,10 +426,12 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         {
             string failureMessage = "Failure Message";
             Boolean executed = false;
-            Context context = new Context();
-            context["ShouldFail"] = true;
-            context["Message"] = failureMessage;
-            context["InjectionRate"] = 0.6;
+            Context context = new Context
+            {
+                ["ShouldFail"] = true,
+                ["Message"] = failureMessage,
+                ["InjectionRate"] = 0.6
+            };
 
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
@@ -409,7 +463,11 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return new Exception();
                 };
 
-                var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
+                var policy = MonkeyPolicy.InjectException(with =>
+                    with.Fault(fault)
+                        .InjectionRate(injectionRate)
+                        .EnabledWhen(enabled)
+                );
 
                 policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
@@ -419,5 +477,6 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         }
 
         #endregion
+
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Polly.Contrib.Simmy.Behavior.Options;
 
 namespace Polly.Contrib.Simmy.Behavior
 {

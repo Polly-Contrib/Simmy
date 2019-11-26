@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Polly.Contrib.Simmy.Latency.Options;
 using Polly.Utilities;
 
 namespace Polly.Contrib.Simmy.Latency

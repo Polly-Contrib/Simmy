@@ -1,5 +1,4 @@
-﻿using Polly.Contrib.Simmy.Behavior.Options;
-using System;
+﻿using System;
 using Polly.Contrib.Simmy.Behavior;
 
 namespace Polly.Contrib.Simmy
@@ -18,7 +17,7 @@ namespace Polly.Contrib.Simmy
         public static InjectBehaviourPolicy InjectBehaviour(Action<InjectBehaviourOptions> configureOptions)
         {
             var options = new InjectBehaviourOptions();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (options.Behaviour == null) throw new ArgumentNullException(nameof(options.Behaviour));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));

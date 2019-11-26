@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading;
+using Polly.Contrib.Simmy.Behavior;
 
-namespace Polly.Contrib.Simmy.Behavior.Options
+namespace Polly.Contrib.Simmy
 {
     /// <summary>
     /// Options used to configure an <see cref="AsyncInjectBehaviourPolicy"/>

@@ -6,7 +6,6 @@ using Polly.Contrib.Simmy.Specs.Helpers;
 using Polly.Contrib.Simmy.Utilities;
 using Polly.Utilities;
 using Xunit;
-using Polly.Contrib.Simmy.Latency.Options;
 using FluentAssertions;
 using Polly.Timeout;
 

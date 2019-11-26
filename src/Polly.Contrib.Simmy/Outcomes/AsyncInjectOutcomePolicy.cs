@@ -1,99 +1,104 @@
 ﻿using System;
 using System.Threading;
-using Polly.Contrib.Simmy.Fault.Options;
+using System.Threading.Tasks;
 
-namespace Polly.Contrib.Simmy.Fault
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
     /// A policy that throws an exception in place of executing the passed delegate.
     /// <remarks>The policy can also be configured to return null in place of the exception, to explicitly fake that no exception is thrown.</remarks>
     /// </summary>
-    public class InjectOutcomePolicy : Simmy.MonkeyPolicy
+    public class AsyncInjectOutcomePolicy : AsyncMonkeyPolicy
     {
-        private readonly Func<Context, CancellationToken, Exception> _faultProvider;
+        private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
 
         [Obsolete]
-        internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
+        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
-
-        internal InjectOutcomePolicy(InjectFaultOptions<Exception> options)
+        
+        internal AsyncInjectOutcomePolicy(InjectFaultAsyncOptions<Exception> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
         }
 
         /// <inheritdoc/>
-        protected override TResult Implementation<TResult>(Func<Context, CancellationToken, TResult> action, Context context, CancellationToken cancellationToken)
+        protected override Task<TResult> ImplementationAsync<TResult>(Func<Context, CancellationToken, Task<TResult>> action, Context context, CancellationToken cancellationToken,
+            bool continueOnCapturedContext)
         {
-            return MonkeyEngine.InjectExceptionImplementation(
+             return AsyncMonkeyEngine.InjectExceptionImplementationAsync(
                 action,
                 context,
                 cancellationToken,
                 _faultProvider,
                 InjectionRate,
-                Enabled);
+                Enabled,
+                continueOnCapturedContext);
         }
     }
 
     /// <summary>
     /// A policy that injects an outcome (throws an exception or returns a specific result), in place of executing the passed delegate.
     /// </summary>
-    public class InjectOutcomePolicy<TResult> : MonkeyPolicy<TResult>
+    public class AsyncInjectOutcomePolicy<TResult> : AsyncMonkeyPolicy<TResult>
     {
-        private readonly Func<Context, CancellationToken, Exception> _faultProvider;
-        private readonly Func<Context, CancellationToken, TResult> _resultProvider;
+        private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
+        private readonly Func<Context, CancellationToken, Task<TResult>> _resultProvider;
 
         [Obsolete]
-        internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
+        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
 
         [Obsolete]
-        internal InjectOutcomePolicy(Func<Context, CancellationToken, TResult> resultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
+        internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<TResult>> resultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _resultProvider = resultProvider ?? throw new ArgumentNullException(nameof(resultProvider));
         }
 
-        internal InjectOutcomePolicy(InjectFaultOptions<Exception> options)
+        internal AsyncInjectOutcomePolicy(InjectFaultAsyncOptions<Exception> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
         }
 
-        internal InjectOutcomePolicy(InjectFaultOptions<TResult> options)
+        internal AsyncInjectOutcomePolicy(InjectFaultAsyncOptions<TResult> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _resultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
         }
 
         /// <inheritdoc/>
-        protected override TResult Implementation(Func<Context, CancellationToken, TResult> action, Context context, CancellationToken cancellationToken)
+        protected override async Task<TResult> ImplementationAsync(Func<Context, CancellationToken, Task<TResult>> action, Context context, CancellationToken cancellationToken,
+            bool continueOnCapturedContext)
         {
             if (_faultProvider != null)
             {
-                return MonkeyEngine.InjectExceptionImplementation(
+                return await AsyncMonkeyEngine.InjectExceptionImplementationAsync(
                     action,
                     context,
                     cancellationToken,
                     _faultProvider,
                     InjectionRate,
-                    Enabled);
+                    Enabled,
+                    continueOnCapturedContext);
             }
             else if (_resultProvider != null)
             {
-                return MonkeyEngine.InjectResultImplementation(
+                return await AsyncMonkeyEngine.InjectResultImplementationAsync(
                     action,
                     context,
                     cancellationToken,
                     _resultProvider,
                     InjectionRate,
-                    Enabled);
+                    Enabled,
+                    continueOnCapturedContext);
             }
             else
             {

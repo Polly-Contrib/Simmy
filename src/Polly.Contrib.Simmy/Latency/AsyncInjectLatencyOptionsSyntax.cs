@@ -1,6 +1,5 @@
 ﻿using System;
 using Polly.Contrib.Simmy.Latency;
-using Polly.Contrib.Simmy.Latency.Options;
 
 namespace Polly.Contrib.Simmy
 {
@@ -18,7 +17,7 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectLatencyPolicy InjectLatencyAsync(Action<InjectLatencyAsyncOptions> configureOptions)
         {
             var options = new InjectLatencyAsyncOptions();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (options.Latency == null) throw new ArgumentNullException(nameof(options.Latency));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
@@ -36,7 +35,7 @@ namespace Polly.Contrib.Simmy
         public static AsyncInjectLatencyPolicy<TResult> InjectLatencyAsync<TResult>(Action<InjectLatencyAsyncOptions> configureOptions)
         {
             var options = new InjectLatencyAsyncOptions();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (options.Latency == null) throw new ArgumentNullException(nameof(options.Latency));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));

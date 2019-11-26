@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Polly.Contrib.Simmy.Latency.Options
+namespace Polly.Contrib.Simmy
 {
     /// <summary>
     /// Allows configuration of behaviour for asynchronous monkey behaviour-injection policies.
