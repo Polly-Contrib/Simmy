@@ -9,57 +9,57 @@ namespace Polly.Contrib.Simmy
     public partial class MonkeyPolicy
     {
         /// <summary>
-        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a fault if <paramref name="configureOptions.Enabled"/> returns true and
+        /// Builds an <see cref="AsyncInjectOutcomePolicy"/> which injects a fault if <paramref name="configureOptions.Enabled"/> returns true and
         /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static InjectOutcomePolicy InjectException(Action<InjectFaultOptions<Exception>> configureOptions)
+        public static AsyncInjectOutcomePolicy InjectExceptionAsync(Action<InjectOutcomeAsyncOptions<Exception>> configureOptions)
         {
-            var options = new InjectFaultOptions<Exception>();
+            var options = new InjectOutcomeAsyncOptions<Exception>();
             configureOptions(options);
 
-            if (options.OutcomeInternal == null) throw new ArgumentNullException(nameof(options.OutcomeInternal));
+            if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
-            return new InjectOutcomePolicy(options);
+            return new AsyncInjectOutcomePolicy(options);
         }
 
         /// <summary>
-        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a result if <paramref name="configureOptions.Enabled"/> returns true and
+        /// Builds an <see cref="AsyncInjectOutcomePolicy"/> which injects a result if <paramref name="configureOptions.Enabled"/> returns true and
         /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static InjectOutcomePolicy<TResult> InjectResult<TResult>(Action<InjectFaultOptions<TResult>> configureOptions)
+        public static AsyncInjectOutcomePolicy<TResult> InjectResultAsync<TResult>(Action<InjectOutcomeAsyncOptions<TResult>> configureOptions)
         {
-            var options = new InjectFaultOptions<TResult>();
+            var options = new InjectOutcomeAsyncOptions<TResult>();
             configureOptions(options);
 
-            if (options.OutcomeInternal == null) throw new ArgumentNullException(nameof(options.OutcomeInternal));
+            if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
-            return new InjectOutcomePolicy<TResult>(options);
+            return new AsyncInjectOutcomePolicy<TResult>(options);
         }
 
         /// <summary>
-        /// Builds an <see cref="InjectOutcomePolicy"/> which injects a fault as result if <paramref name="configureOptions.Enabled"/> returns true and
+        /// Builds an <see cref="AsyncInjectOutcomePolicy"/> which injects a fault as result if  <paramref name="configureOptions.Enabled"/> returns true and
         /// a random number is within range of <paramref name="configureOptions.InjectionRate"/>.
         /// </summary>
         /// <param name="configureOptions">A callback to configure policy options.</param>
         /// <returns>The policy instance.</returns>
-        public static InjectOutcomePolicy<TResult> InjectResult<TResult>(Action<InjectFaultOptions<Exception>> configureOptions)
+        public static AsyncInjectOutcomePolicy<TResult> InjectResultAsync<TResult>(Action<InjectOutcomeAsyncOptions<Exception>> configureOptions)
         {
-            var options = new InjectFaultOptions<Exception>();
+            var options = new InjectOutcomeAsyncOptions<Exception>();
             configureOptions(options);
 
-            if (options.OutcomeInternal == null) throw new ArgumentNullException(nameof(options.OutcomeInternal));
+            if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
-            return new InjectOutcomePolicy<TResult>(options);
+            return new AsyncInjectOutcomePolicy<TResult>(options);
         }
     }
 }
