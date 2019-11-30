@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Behavior
 {
     /// <summary>
     /// Allows configuration of behaviour for synchronous monkey behaviour-injection policies.

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
-    /// Allows configuration of fault for hronous monkey fault-injection policies.
+    /// Allows configuration of fault for synchronous monkey fault-injection policies.
     /// </summary>
     public static class InjectFaultOptionsExtensions
     {

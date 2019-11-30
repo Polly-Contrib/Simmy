@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading;
-using Polly.Contrib.Simmy.Latency;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Latency
 {
     /// <summary>
     /// Options used to configure an <see cref="AsyncInjectLatencyPolicy"/>

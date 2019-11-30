@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
     /// Allows configuration of fault for asynchronous monkey fault-injection policies.

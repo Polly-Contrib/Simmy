@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using FluentAssertions;
+using Polly.Contrib.Simmy.Latency;
 using Polly.Contrib.Simmy.Utilities;
 using Polly.Utilities;
 using Xunit;

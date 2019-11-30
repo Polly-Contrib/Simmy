@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Polly.Contrib.Simmy.Outcomes;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
     /// Options used to configure an <see cref="InjectOutcomePolicy"/>

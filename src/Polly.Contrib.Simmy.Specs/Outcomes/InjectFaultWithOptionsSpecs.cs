@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
+using Polly.Contrib.Simmy.Outcomes;
 using Polly.Contrib.Simmy.Utilities;
 using Xunit;
 
