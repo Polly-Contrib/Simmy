@@ -24,7 +24,7 @@ namespace Polly.Contrib.Simmy.Behavior
         /// <param name="behaviour">A delegate representing the behaviour to inject.</param>
         public static InjectBehaviourAsyncOptions Behaviour(this InjectBehaviourAsyncOptions options, Func<Context, CancellationToken, Task> behaviour)
         {
-            options.Behaviour = behaviour;
+            options.BehaviourInternal = behaviour;
             return options;
         }
     }

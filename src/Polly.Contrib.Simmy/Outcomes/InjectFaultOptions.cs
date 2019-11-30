@@ -11,6 +11,6 @@ namespace Polly.Contrib.Simmy.Outcomes
         /// <summary>
         /// Outcome Delegate to be executed
         /// </summary>
-        internal Func<Context, CancellationToken, TResult> Outcome { get; set; }
+        internal Func<Context, CancellationToken, TResult> OutcomeInternal { get; set; }
     }
 }

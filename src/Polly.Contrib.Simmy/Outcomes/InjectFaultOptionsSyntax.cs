@@ -19,7 +19,7 @@ namespace Polly.Contrib.Simmy
             var options = new InjectFaultOptions<Exception>();
             configureOptions(options);
 
-            if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
+            if (options.OutcomeInternal == null) throw new ArgumentNullException(nameof(options.OutcomeInternal));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
@@ -37,7 +37,7 @@ namespace Polly.Contrib.Simmy
             var options = new InjectFaultOptions<TResult>();
             configureOptions(options);
 
-            if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
+            if (options.OutcomeInternal == null) throw new ArgumentNullException(nameof(options.OutcomeInternal));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
@@ -55,7 +55,7 @@ namespace Polly.Contrib.Simmy
             var options = new InjectFaultOptions<Exception>();
             configureOptions(options);
 
-            if (options.Outcome == null) throw new ArgumentNullException(nameof(options.Outcome));
+            if (options.OutcomeInternal == null) throw new ArgumentNullException(nameof(options.OutcomeInternal));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 

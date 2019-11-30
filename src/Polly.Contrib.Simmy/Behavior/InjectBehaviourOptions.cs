@@ -11,6 +11,6 @@ namespace Polly.Contrib.Simmy.Behavior
         /// <summary>
         /// Behaviour Delegate to be executed
         /// </summary>
-        internal Action<Context, CancellationToken> Behaviour { get; set; }
+        internal Action<Context, CancellationToken> BehaviourInternal { get; set; }
     }
 }

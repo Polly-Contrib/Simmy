@@ -23,7 +23,7 @@ namespace Polly.Contrib.Simmy.Outcomes
         /// <param name="fault">A delegate representing the fault to inject.</param>
         public static InjectFaultOptions<Exception> Fault(this InjectFaultOptions<Exception> options, Func<Context, CancellationToken, Exception> fault)
         {
-            options.Outcome = fault;
+            options.OutcomeInternal = fault;
             return options;
         }
 
@@ -42,7 +42,7 @@ namespace Polly.Contrib.Simmy.Outcomes
         /// <param name="fault">A delegate representing the result to inject.</param>
         public static InjectFaultOptions<Exception> Fault<TResult>(this InjectFaultOptions<Exception> options, Func<Context, CancellationToken, Exception> fault)
         {
-            options.Outcome = fault;
+            options.OutcomeInternal = fault;
             return options;
         }
 
@@ -61,7 +61,7 @@ namespace Polly.Contrib.Simmy.Outcomes
         /// <param name="result">A delegate representing the result to inject.</param>
         public static InjectFaultOptions<TResult> Result<TResult>(this InjectFaultOptions<TResult> options, Func<Context, CancellationToken, TResult> result)
         {
-            options.Outcome = result;
+            options.OutcomeInternal = result;
             return options;
         }
     }

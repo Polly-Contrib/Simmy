@@ -19,7 +19,7 @@ namespace Polly.Contrib.Simmy
             var options = new InjectBehaviourOptions();
             configureOptions(options);
 
-            if (options.Behaviour == null) throw new ArgumentNullException(nameof(options.Behaviour));
+            if (options.BehaviourInternal == null) throw new ArgumentNullException(nameof(options.BehaviourInternal));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 

@@ -11,6 +11,6 @@ namespace Polly.Contrib.Simmy.Latency
         /// <summary>
         /// Latency Delegate to be executed
         /// </summary>
-        internal Func<Context, CancellationToken, TimeSpan> Latency { get; set; }
+        internal Func<Context, CancellationToken, TimeSpan> LatencyInternal { get; set; }
     }
 }

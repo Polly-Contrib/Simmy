@@ -24,7 +24,7 @@ namespace Polly.Contrib.Simmy.Latency
         /// <param name="latency">A delegate representing the latency to inject.</param>
         public static InjectLatencyAsyncOptions Latency(this InjectLatencyAsyncOptions options, Func<Context, CancellationToken, Task<TimeSpan>> latency)
         {
-            options.Latency = latency;
+            options.LatencyInternal = latency;
             return options;
         }
     }

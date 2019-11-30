@@ -19,7 +19,7 @@ namespace Polly.Contrib.Simmy
             var options = new InjectLatencyOptions();
             configureOptions(options);
 
-            if (options.Latency == null) throw new ArgumentNullException(nameof(options.Latency));
+            if (options.LatencyInternal == null) throw new ArgumentNullException(nameof(options.LatencyInternal));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
@@ -37,7 +37,7 @@ namespace Polly.Contrib.Simmy
             var options = new InjectLatencyOptions();
             configureOptions(options);
 
-            if (options.Latency == null) throw new ArgumentNullException(nameof(options.Latency));
+            if (options.LatencyInternal == null) throw new ArgumentNullException(nameof(options.LatencyInternal));
             if (options.InjectionRate == null) throw new ArgumentNullException(nameof(options.InjectionRate));
             if (options.Enabled == null) throw new ArgumentNullException(nameof(options.Enabled));
 
