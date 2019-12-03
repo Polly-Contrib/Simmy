@@ -19,7 +19,7 @@ namespace Polly.Contrib.Simmy.Outcomes
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
         
-        internal AsyncInjectOutcomePolicy(InjectFaultAsyncOptions<Exception> options)
+        internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<Exception> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
@@ -62,13 +62,13 @@ namespace Polly.Contrib.Simmy.Outcomes
             _resultProvider = resultProvider ?? throw new ArgumentNullException(nameof(resultProvider));
         }
 
-        internal AsyncInjectOutcomePolicy(InjectFaultAsyncOptions<Exception> options)
+        internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<Exception> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
         }
 
-        internal AsyncInjectOutcomePolicy(InjectFaultAsyncOptions<TResult> options)
+        internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<TResult> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _resultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));

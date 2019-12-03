@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Polly.Contrib.Simmy.Behavior;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Behavior
 {
     /// <summary>
     /// Options used to configure an <see cref="AsyncInjectBehaviourPolicy"/>
@@ -13,6 +12,6 @@ namespace Polly.Contrib.Simmy
         /// <summary>
         /// Behaviour Delegate to be executed
         /// </summary>
-        internal Func<Context, CancellationToken, Task> Behaviour { get; set; }
+        internal Func<Context, CancellationToken, Task> BehaviourInternal { get; set; }
     }
 }

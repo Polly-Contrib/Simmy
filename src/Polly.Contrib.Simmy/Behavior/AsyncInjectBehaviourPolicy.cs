@@ -21,7 +21,7 @@ namespace Polly.Contrib.Simmy.Behavior
         internal AsyncInjectBehaviourPolicy(InjectBehaviourAsyncOptions options)
             : base(options.InjectionRate, options.Enabled)
         {
-            _behaviour = options.Behaviour ?? throw new ArgumentNullException(nameof(options.Behaviour));
+            _behaviour = options.BehaviourInternal ?? throw new ArgumentNullException(nameof(options.BehaviourInternal));
         }
 
         /// <inheritdoc/>
@@ -57,7 +57,7 @@ namespace Polly.Contrib.Simmy.Behavior
         internal AsyncInjectBehaviourPolicy(InjectBehaviourAsyncOptions options)
             : base(options.InjectionRate, options.Enabled)
         {
-            _behaviour = options.Behaviour ?? throw new ArgumentNullException(nameof(options.Behaviour));
+            _behaviour = options.BehaviourInternal ?? throw new ArgumentNullException(nameof(options.BehaviourInternal));
         }
 
         /// <inheritdoc/>

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Threading;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
-    /// Allows configuration of fault for hronous monkey fault-injection policies.
+    /// Allows configuration of fault for synchronous monkey fault-injection policies.
     /// </summary>
-    public static class InjectFaultOptionsExtensions
+    public static class InjectOutcomeOptionsExtensions
     {
         /// <summary>
         /// Configure fault to inject with the monkey policy.
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="fault">The exception to inject.</param>
-        public static InjectFaultOptions<Exception> Fault(this InjectFaultOptions<Exception> options, Exception fault)
+        public static InjectOutcomeOptions<Exception> Fault(this InjectOutcomeOptions<Exception> options, Exception fault)
             => Fault(options, (_, __) => fault);
 
         /// <summary>
@@ -21,9 +21,9 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="fault">A delegate representing the fault to inject.</param>
-        public static InjectFaultOptions<Exception> Fault(this InjectFaultOptions<Exception> options, Func<Context, CancellationToken, Exception> fault)
+        public static InjectOutcomeOptions<Exception> Fault(this InjectOutcomeOptions<Exception> options, Func<Context, CancellationToken, Exception> fault)
         {
-            options.Outcome = fault;
+            options.OutcomeInternal = fault;
             return options;
         }
 
@@ -32,7 +32,7 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="fault">The result to inject</param>
-        public static InjectFaultOptions<Exception> Fault<TResult>(this InjectFaultOptions<Exception> options, Exception fault) =>
+        public static InjectOutcomeOptions<Exception> Fault<TResult>(this InjectOutcomeOptions<Exception> options, Exception fault) =>
             Fault<TResult>(options, (_, __) => fault);
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="fault">A delegate representing the result to inject.</param>
-        public static InjectFaultOptions<Exception> Fault<TResult>(this InjectFaultOptions<Exception> options, Func<Context, CancellationToken, Exception> fault)
+        public static InjectOutcomeOptions<Exception> Fault<TResult>(this InjectOutcomeOptions<Exception> options, Func<Context, CancellationToken, Exception> fault)
         {
-            options.Outcome = fault;
+            options.OutcomeInternal = fault;
             return options;
         }
 
@@ -51,7 +51,7 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="result">The result to inject</param>
-        public static InjectFaultOptions<TResult> Result<TResult>(this InjectFaultOptions<TResult> options, TResult result) =>
+        public static InjectOutcomeOptions<TResult> Result<TResult>(this InjectOutcomeOptions<TResult> options, TResult result) =>
             Result(options, (_, __) => result);
 
         /// <summary>
@@ -59,9 +59,9 @@ namespace Polly.Contrib.Simmy
         /// </summary>
         /// <param name="options">The configuration object.</param>
         /// <param name="result">A delegate representing the result to inject.</param>
-        public static InjectFaultOptions<TResult> Result<TResult>(this InjectFaultOptions<TResult> options, Func<Context, CancellationToken, TResult> result)
+        public static InjectOutcomeOptions<TResult> Result<TResult>(this InjectOutcomeOptions<TResult> options, Func<Context, CancellationToken, TResult> result)
         {
-            options.Outcome = result;
+            options.OutcomeInternal = result;
             return options;
         }
     }

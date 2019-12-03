@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Polly.Contrib.Simmy.Outcomes;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
     /// Options used to configure an <see cref="InjectOutcomePolicy"/>
     /// </summary>
-    public class InjectFaultAsyncOptions<TResult> : InjectOptionsAsyncBase
+    public class InjectOutcomeAsyncOptions<TResult> : InjectOptionsAsyncBase
     {
         /// <summary>
         /// Outcome Delegate to be executed

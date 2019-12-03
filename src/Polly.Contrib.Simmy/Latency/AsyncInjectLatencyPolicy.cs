@@ -25,7 +25,7 @@ namespace Polly.Contrib.Simmy.Latency
         internal AsyncInjectLatencyPolicy(InjectLatencyAsyncOptions options)
             : base(options.InjectionRate, options.Enabled)
         {
-            _latencyProvider = options.Latency ?? throw new ArgumentNullException(nameof(options.Latency));
+            _latencyProvider = options.LatencyInternal ?? throw new ArgumentNullException(nameof(options.LatencyInternal));
         }
 
         /// <inheritdoc/>
@@ -76,7 +76,7 @@ namespace Polly.Contrib.Simmy.Latency
         internal AsyncInjectLatencyPolicy(InjectLatencyAsyncOptions options)
             : base(options.InjectionRate, options.Enabled)
         {
-            _latencyProvider = options.Latency ?? throw new ArgumentNullException(nameof(options.Latency));
+            _latencyProvider = options.LatencyInternal ?? throw new ArgumentNullException(nameof(options.LatencyInternal));
         }
 
         /// <inheritdoc/>

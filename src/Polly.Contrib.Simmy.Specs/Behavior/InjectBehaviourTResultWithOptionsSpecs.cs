@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Polly.Contrib.Simmy.Behavior;
 using Polly.Contrib.Simmy.Specs.Helpers;
 using Polly.Contrib.Simmy.Utilities;
 using Xunit;

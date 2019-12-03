@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Polly.Contrib.Simmy
+namespace Polly.Contrib.Simmy.Latency
 {
     /// <summary>
     /// Allows configuration of behaviour for asynchronous monkey behaviour-injection policies.
@@ -24,7 +24,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="latency">A delegate representing the latency to inject.</param>
         public static InjectLatencyAsyncOptions Latency(this InjectLatencyAsyncOptions options, Func<Context, CancellationToken, Task<TimeSpan>> latency)
         {
-            options.Latency = latency;
+            options.LatencyInternal = latency;
             return options;
         }
     }
