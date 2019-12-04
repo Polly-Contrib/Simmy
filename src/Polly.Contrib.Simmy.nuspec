@@ -29,6 +29,9 @@
       <group targetFramework="netstandard2.0">
         <dependency id="Polly" version="7.1.0" />
       </group>
+      <group targetFramework="netstandard2.1">
+        <dependency id="Polly" version="7.1.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
