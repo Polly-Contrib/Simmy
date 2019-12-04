@@ -65,7 +65,6 @@ namespace Polly.Contrib.Simmy
                 {
                     throw exception;
                 }
-
             }
 
             return action(context, cancellationToken);
