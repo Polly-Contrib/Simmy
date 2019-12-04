@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Polly.Contrib.Simmy.Fault
+namespace Polly.Contrib.Simmy.Outcomes
 {
     /// <summary>
     /// A policy that throws an exception in place of executing the passed delegate.
@@ -12,12 +12,19 @@ namespace Polly.Contrib.Simmy.Fault
     {
         private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
 
+        [Obsolete]
         internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
         
+        internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<Exception> options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
+        }
+
         /// <inheritdoc/>
         protected override Task<TResult> ImplementationAsync<TResult>(Func<Context, CancellationToken, Task<TResult>> action, Context context, CancellationToken cancellationToken,
             bool continueOnCapturedContext)
@@ -41,16 +48,30 @@ namespace Polly.Contrib.Simmy.Fault
         private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
         private readonly Func<Context, CancellationToken, Task<TResult>> _resultProvider;
 
+        [Obsolete]
         internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
         }
 
+        [Obsolete]
         internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<TResult>> resultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
             : base(injectionRate, enabled)
         {
             _resultProvider = resultProvider ?? throw new ArgumentNullException(nameof(resultProvider));
+        }
+
+        internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<Exception> options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
+        }
+
+        internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<TResult> options)
+            : base(options.InjectionRate, options.Enabled)
+        {
+            _resultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
         }
 
         /// <inheritdoc/>

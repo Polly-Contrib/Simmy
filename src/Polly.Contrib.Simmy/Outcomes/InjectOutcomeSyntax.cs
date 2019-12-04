@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using Polly.Contrib.Simmy.Fault;
+using Polly.Contrib.Simmy.Outcomes;
 
 namespace Polly.Contrib.Simmy
 {
@@ -14,6 +14,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free fashion</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy InjectFault(
             Exception fault,
             Double injectionRate,
@@ -36,6 +37,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy InjectFault(
             Exception fault,
             Double injectionRate,
@@ -57,6 +59,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy InjectFault(
             Func<Context, CancellationToken, Exception> faultProvider,
             Func<Context, CancellationToken, Double> injectionRate,
@@ -81,6 +84,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free fashion</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             Exception fault,
             Double injectionRate,
@@ -103,6 +107,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             Exception fault,
             Double injectionRate,
@@ -124,6 +129,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             Func<Context, CancellationToken, Exception> faultProvider,
             Func<Context, CancellationToken, Double> injectionRate,
@@ -148,6 +154,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free fashion</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             TResult fault,
             Double injectionRate,
@@ -170,6 +177,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             TResult fault,
             Double injectionRate,
@@ -191,6 +199,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectFaultOptions> instead.")]
         public static InjectOutcomePolicy<TResult> InjectFault<TResult>(
             Func<Context, CancellationToken, TResult> faultProvider,
             Func<Context, CancellationToken, Double> injectionRate,

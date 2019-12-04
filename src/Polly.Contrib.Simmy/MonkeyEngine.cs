@@ -24,16 +24,7 @@ namespace Polly.Contrib.Simmy
             // to prevent execute further config delegates if token is signaled on injectionRate configuration delegate.
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (injectionThreshold < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.");
-            }
-
-            if (injectionThreshold > 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(injectionThreshold), "Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.");
-            }
-
+            injectionThreshold.EnsureInjectionThreshold();
             return ThreadSafeRandom_LockOncePerThread.NextDouble() < injectionThreshold;
         }
 
