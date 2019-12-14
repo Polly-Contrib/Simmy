@@ -103,8 +103,7 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
                     .InjectionRate(-1)
             );
 
-            act.ShouldThrow<ArgumentOutOfRangeException>()
-                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.\r\nParameter name: injectionThreshold");
+            act.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Fact]
@@ -116,8 +115,7 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
                     .InjectionRate(1.1)
             );
 
-            act.ShouldThrow<ArgumentOutOfRangeException>()
-                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.\r\nParameter name: injectionThreshold");
+            act.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Fact]
@@ -130,8 +128,7 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             );
 
             policy.Invoking(x => x.Execute(() => ResultPrimitive.Good))
-                .ShouldThrow<ArgumentOutOfRangeException>()
-                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a negative number.\r\nParameter name: injectionThreshold");
+                .ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Fact]
@@ -144,8 +141,7 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             );
 
             policy.Invoking(x => x.Execute(() => ResultPrimitive.Good))
-                .ShouldThrow<ArgumentOutOfRangeException>()
-                .WithMessage("Injection rate/threshold in Monkey policies should always be a double between [0, 1]; never a number greater than 1.\r\nParameter name: injectionThreshold");
+                .ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         #endregion
