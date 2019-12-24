@@ -40,25 +40,57 @@ Simmy offers the following chaos-injection policies:
 |**[Behavior](#Inject-behavior)**|Allows you to inject _any_ extra behaviour, before a call is placed. |
 
 # Usage
+## Step 1: Set up the Monkey Policy
 
 ## Inject exception
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectException(Action<InjectOutcomeOptions<Exception>>);
+
+// Following example causes the policy to throw SocketException with a probability of 5% if enabled
+var fault = new SocketException(errorCode: 10013);
+var chaosPolicy = MonkeyPolicy.InjectException(with =>
+	with.Fault(fault)
+		.InjectionRate(0.05)
+		.Enabled()
+	);
 ```
 
 ## Inject result
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectResult(Action<InjectOutcomeOptions<TResult>>);
+
+// Following example causes the policy to return a bad request HttpResponseMessage with a probability of 5% if enabled
+var result = new HttpResponseMessage(HttpStatusCode.BadRequest);
+var chaosPolicy = MonkeyPolicy.InjectResult<HttpResponseMessage>(with =>
+	with.Result(result)
+		.InjectionRate(0.05)
+		.Enabled()
+);
 ```
 
 ## Inject latency
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectLatency(Action<InjectLatencyOptions>);
+
+// Following example causes policy to introduce an added latency of 5 seconds to a randomly-selected 10% of the calls.
+var isEnabled = true;
+var chaosPolicy = MonkeyPolicy.InjectLatency(with =>
+	with.Latency(TimeSpan.FromSeconds(5))
+		.InjectionRate(0.1)
+		.Enabled(isEnabled)
+	);
 ```
 
 ## Inject behavior
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectBehaviour(Action<InjectBehaviourOptions>);
+
+// Following example causes policy to execute a method to restart a virtual machine; the probability that method will be executed is 1% if enabled
+var chaosPolicy = MonkeyPolicy.InjectBehaviour(with =>
+	with.Behaviour(() => restartRedisVM())
+		.InjectionRate(0.01)
+		.EnabledWhen((ctx, ct) => isEnabled(ctx, ct))
+	);
 ```
 
 ## Parameters
@@ -156,56 +188,6 @@ All parameters are available in a `Func<Context, ...>` form.  This allows you to
 
 The [example app](https://github.com/Polly-Contrib/Polly.Contrib.SimmyDemo_WebApi) demonstrates both these approaches in practice.
 
-# Basic examples
-
-## Step 1: Set up the Monkey Policy
-
-### Fault
-
-```csharp
-// Following example causes the policy to throw SocketException with a probability of 5% if enabled
-var fault = new SocketException(errorCode: 10013);
-var chaosPolicy = MonkeyPolicy.InjectException(with =>
-	with.Fault(fault)
-		.InjectionRate(0.05)
-		.Enabled()
-	);
-```
-
-### Result
-
-```csharp
-// Following example causes the policy to return a bad request HttpResponseMessage with a probability of 5% if enabled
-var result = new HttpResponseMessage(HttpStatusCode.BadRequest);
-var chaosPolicy = MonkeyPolicy.InjectResult<HttpResponseMessage>(with =>
-	with.Result(result)
-		.InjectionRate(0.05)
-		.Enabled()
-);
-```
-
-### Latency
-```csharp
-
-// Following example causes policy to introduce an added latency of 5 seconds to a randomly-selected 10% of the calls.
-var isEnabled = true;
-var chaosPolicy = MonkeyPolicy.InjectLatency(with =>
-	with.Latency(TimeSpan.FromSeconds(5))
-		.InjectionRate(0.1)
-		.Enabled(isEnabled)
-	);
-```
-
-### Behavior
-
-```csharp
-// Following example causes policy to execute a method to restart a virtual machine; the probability that method will be executed is 1% if enabled
-var chaosPolicy = MonkeyPolicy.InjectBehaviour(with =>
-	with.Behaviour(() => restartRedisVM())
-		.InjectionRate(0.01)
-		.EnabledWhen((ctx, ct) => isEnabled(ctx, ct))
-	);
-```
 
 ## Step 2: Execute code through the Monkey Policy
 
