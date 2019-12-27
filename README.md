@@ -45,7 +45,9 @@ Simmy offers the following chaos-injection policies:
 ## Inject exception
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectException(Action<InjectOutcomeOptions<Exception>>);
-
+```
+For example:
+```csharp
 // Following example causes the policy to throw SocketException with a probability of 5% if enabled
 var fault = new SocketException(errorCode: 10013);
 var chaosPolicy = MonkeyPolicy.InjectException(with =>
@@ -58,7 +60,9 @@ var chaosPolicy = MonkeyPolicy.InjectException(with =>
 ## Inject result
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectResult(Action<InjectOutcomeOptions<TResult>>);
-
+```
+For example:
+```csharp
 // Following example causes the policy to return a bad request HttpResponseMessage with a probability of 5% if enabled
 var result = new HttpResponseMessage(HttpStatusCode.BadRequest);
 var chaosPolicy = MonkeyPolicy.InjectResult<HttpResponseMessage>(with =>
@@ -71,7 +75,9 @@ var chaosPolicy = MonkeyPolicy.InjectResult<HttpResponseMessage>(with =>
 ## Inject latency
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectLatency(Action<InjectLatencyOptions>);
-
+```
+For example:
+```csharp
 // Following example causes policy to introduce an added latency of 5 seconds to a randomly-selected 10% of the calls.
 var isEnabled = true;
 var chaosPolicy = MonkeyPolicy.InjectLatency(with =>
@@ -84,7 +90,9 @@ var chaosPolicy = MonkeyPolicy.InjectLatency(with =>
 ## Inject behavior
 ```csharp
 var chaosPolicy = MonkeyPolicy.InjectBehaviour(Action<InjectBehaviourOptions>);
-
+```
+For example:
+```csharp
 // Following example causes policy to execute a method to restart a virtual machine; the probability that method will be executed is 1% if enabled
 var chaosPolicy = MonkeyPolicy.InjectBehaviour(with =>
 	with.Behaviour(() => restartRedisVM())
