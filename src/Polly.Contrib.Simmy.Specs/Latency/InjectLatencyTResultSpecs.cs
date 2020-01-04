@@ -11,6 +11,7 @@ using Polly.Timeout;
 namespace Polly.Contrib.Simmy.Specs.Latency
 {
     [Collection(Constants.AmbientContextDependentTestCollection)]
+    [Obsolete]
     public class InjectLatencyTResultSpecs : IDisposable
     {
         private int _totalTimeSlept = 0;

@@ -6,9 +6,10 @@ using Polly.Contrib.Simmy.Utilities;
 using Polly.Utilities;
 using Xunit;
 
-namespace Polly.Contrib.Simmy.Specs.Fault
+namespace Polly.Contrib.Simmy.Specs.Outcomes
 {
     [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
+    [Obsolete]
     public class InjectFaultAsyncSpecs : IDisposable
     {
         public InjectFaultAsyncSpecs()
