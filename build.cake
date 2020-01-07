@@ -9,15 +9,15 @@ var configuration = Argument<string>("configuration", "Release");
 // EXTERNAL NUGET TOOLS
 //////////////////////////////////////////////////////////////////////
 
-#Tool "xunit.runner.console"
-#Tool "GitVersion.CommandLine"
-#Tool "Brutal.Dev.StrongNameSigner"
+#tool nuget:?package=xunit.runner.console&version=2.4.1
+#tool nuget:?package=GitVersion.CommandLine&version=5.0.1
+#tool nuget:?package=Brutal.Dev.StrongNameSigner&version=2.4.0
 
 //////////////////////////////////////////////////////////////////////
 // EXTERNAL NUGET LIBRARIES
 //////////////////////////////////////////////////////////////////////
 
-#addin "Cake.FileHelpers"
+#addin nuget:?package=Cake.FileHelpers&version=3.2.1
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
@@ -192,7 +192,7 @@ Task("__BuildSolutions")
             settings
                 .SetConfiguration(configuration)
                 .WithProperty("TreatWarningsAsErrors", "true")
-                .UseToolVersion(MSBuildToolVersion.VS2017)
+                .UseToolVersion(MSBuildToolVersion.VS2019)
                 .SetVerbosity(Verbosity.Minimal)
                 .SetNodeReuse(false));
     }

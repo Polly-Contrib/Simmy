@@ -18,6 +18,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free mode</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourAsyncOptions> instead.")]
         public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(
             Func<Task> behaviour,
             Double injectionRate,
@@ -41,6 +42,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in context free mode</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourAsyncOptions> instead.")]
         public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(
             Func<Context, CancellationToken, Task> behaviour,
             Double injectionRate,
@@ -63,6 +65,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">The injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourAsyncOptions> instead.")]
         public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(
             Func<Context, CancellationToken, Task> behaviour,
             Double injectionRate,
@@ -84,6 +87,7 @@ namespace Polly.Contrib.Simmy
         /// <param name="injectionRate">lambda to get injection rate between [0, 1]</param>
         /// <param name="enabled">Lambda to check if this policy is enabled in current context</param>
         /// <returns>The policy instance.</returns>
+        [Obsolete("This overload is going to be deprecated, use the overload which takes Action<InjectBehaviourAsyncOptions> instead.")]
         public static AsyncInjectBehaviourPolicy InjectBehaviourAsync(
             Func<Context, CancellationToken, Task> behaviour,
             Func<Context, CancellationToken, Task<Double>> injectionRate,

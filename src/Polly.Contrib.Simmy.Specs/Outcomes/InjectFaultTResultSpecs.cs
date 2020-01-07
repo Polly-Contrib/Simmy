@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Threading;
 using FluentAssertions;
+using Polly.Contrib.Simmy.Specs.Helpers;
 using Polly.Contrib.Simmy.Utilities;
 using Xunit;
 
-namespace Polly.Contrib.Simmy.Specs.Fault
+namespace Polly.Contrib.Simmy.Specs.Outcomes
 {
-    [Collection(Helpers.Constants.AmbientContextDependentTestCollection)]
-    public class InjectFaultSpecs : IDisposable
+    [Collection(Constants.AmbientContextDependentTestCollection)]
+    [Obsolete]
+    public class InjectFaultTResultSpecs : IDisposable
     {
-        public InjectFaultSpecs()
+        public InjectFaultTResultSpecs()
         {
             ThreadSafeRandom_LockOncePerThread.NextDouble = () => 0.5;
         }
@@ -21,105 +23,98 @@ namespace Polly.Contrib.Simmy.Specs.Fault
 
         #region Basic Overload, Exception, Context Free
         [Fact]
-        public void InjectFault_Context_Free_Enabled_Should_not_execute_user_delegate()
+        public void InjectFaultContext_Free_Enabled_Should_not_execute_user_delegate()
         {
             string exceptionMessage = "exceptionMessage";
             Exception fault = new Exception(exceptionMessage);
-            var policy = MonkeyPolicy.InjectFault(fault, 0.6, () => true);
-
             Boolean executed = false;
-            policy.Invoking(x => x.Execute(() => { executed = true; }))
+            Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, 0.6, () => true);
+            policy.Invoking(x => x.Execute(action))
                 .ShouldThrowExactly<Exception>().WithMessage(exceptionMessage);
 
             executed.Should().BeFalse();
         }
 
         [Fact]
-        public void InjectFault_Context_Free_Enabled_Should_execute_user_delegate()
+        public void InjectFaultContext_Free_Enabled_Should_execute_user_delegate()
         {
-            Exception fault = new Exception("test");
-            var policy = MonkeyPolicy.InjectFault(fault, 0.3, () => true);
-
+            string exceptionMessage = "exceptionMessage";
+            Exception fault = new Exception(exceptionMessage);
             Boolean executed = false;
-            policy.Invoking(x => x.Execute(() => { executed = true; }))
+            Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, 0.3, () => true);
+            policy.Invoking(x => x.Execute(action))
                 .ShouldNotThrow<Exception>();
 
             executed.Should().BeTrue();
         }
-
-        [Fact]
-        public void InjectFault_Context_Free_Enabled_Should_execute_user_delegate_not_throw_if_injected_fault_is_permitted_null()
-        {
-            Exception fault = null;
-            var policy = MonkeyPolicy.InjectFault(fault, 0.6, () => true);
-
-            Boolean executed = false;
-            policy.Invoking(x => x.Execute(() => { executed = true; }))
-                .ShouldNotThrow<Exception>();
-
-            executed.Should().BeTrue();
-        }
-
         #endregion
 
         #region Basic Overload, Exception, With Context
         [Fact]
-        public void InjectFault_With_Context_Should_not_execute_user_delegate()
+        public void InjectFaultWith_Context_Should_not_execute_user_delegate()
         {
             Boolean executed = false;
             Context context = new Context();
             context["ShouldFail"] = true;
-            var policy = MonkeyPolicy.InjectFault(
-                new Exception("test"),
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(
+                new Exception(),
                 0.6,
                 (ctx, ct) =>
                 {
                     return ((bool)ctx["ShouldFail"]);
                 });
 
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
+            policy.Invoking(x => x.Execute(action, context))
                 .ShouldThrowExactly<Exception>();
 
             executed.Should().BeFalse();
         }
 
         [Fact]
-        public void InjectFault_With_Context_Should_execute_user_delegate()
+        public void InjectFaultWith_Context_Should_execute_user_delegate()
         {
-            Exception fault = new Exception("test");
             Boolean executed = false;
             Context context = new Context();
             context["ShouldFail"] = true;
-            var policy = MonkeyPolicy.InjectFault(
-                new Exception("test"),
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(
+                new Exception(),
                 0.4,
                 (ctx, ct) =>
                 {
                     return ((bool)ctx["ShouldFail"]);
                 });
 
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
+            policy.Invoking(x => x.Execute(action, context))
                 .ShouldNotThrow<Exception>();
 
             executed.Should().BeTrue();
         }
 
         [Fact]
-        public void InjectFault_With_Context_Should_execute_user_delegate_with_enabled_lambda_return_false()
+        public void InjectFaultWith_Context_Should_execute_user_delegate_with_enabled_lambda_disabled()
         {
-            Exception fault = new Exception("test");
             Boolean executed = false;
             Context context = new Context();
             context["ShouldFail"] = false;
-            var policy = MonkeyPolicy.InjectFault(
-                new Exception("test"),
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(
+                new Exception(),
                 0.6,
                 (ctx, ct) =>
                 {
                     return ((bool)ctx["ShouldFail"]);
                 });
 
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
+            policy.Invoking(x => x.Execute(action, context))
                 .ShouldNotThrow<Exception>();
 
             executed.Should().BeTrue();
@@ -127,64 +122,33 @@ namespace Polly.Contrib.Simmy.Specs.Fault
         #endregion
 
         #region Overload, All based on context
-
         [Fact]
-        public void InjectFault_should_throw_if_injection_rate_is_out_of_range_too_low()
+        public void InjectFaultWith_Context_Should_not_execute_user_delegate_default_context()
         {
             Boolean executed = false;
             Context context = new Context();
-
-            Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
-            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => -0.1;
-            Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
-                .ShouldThrowExactly<ArgumentOutOfRangeException>();
-
-            executed.Should().BeFalse();
-        }
-
-        [Fact]
-        public void InjectFault_should_throw_if_injection_rate_is_out_of_range_too_high()
-        {
-            Boolean executed = false;
-            Context context = new Context();
-
-            Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
-            Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => 1.01;
-            Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
-                .ShouldThrowExactly<ArgumentOutOfRangeException>();
-
-            executed.Should().BeFalse();
-        }
-
-        [Fact]
-        public void InjectFault_With_Context_Should_not_execute_user_delegate_with_default_context()
-        {
-            Boolean executed = false;
-            Context context = new Context();
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
 
             Func<Context, CancellationToken, Exception> fault = (ctx, ct) => new Exception();
             Func<Context, CancellationToken, double> injectionRate = (ctx, ct) => 0.6;
             Func<Context, CancellationToken, bool> enabled = (ctx, ct) => true;
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
-                .ShouldThrowExactly<Exception>();
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, injectionRate, enabled);
+            policy.Invoking(x => x.Execute(action, context))
+                .ShouldThrow<Exception>();
 
             executed.Should().BeFalse();
         }
 
         [Fact]
-        public void InjectFault_With_Context_Should_not_execute_user_delegate_with_all_context_set()
+        public void InjectFaultWith_Context_Should_not_execute_user_delegate_full_context()
         {
+            string failureMessage = "Failure Message";
             Boolean executed = false;
             Context context = new Context();
-            string failureMessage = "Failure Message";
             context["ShouldFail"] = true;
             context["Message"] = failureMessage;
             context["InjectionRate"] = 0.6;
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
 
             Func<Context, CancellationToken, Exception> fault = (ctx, ct) =>
             {
@@ -211,11 +175,145 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return ((bool)ctx["ShouldFail"]);
             };
 
-            var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
-            policy.Invoking(x => x.Execute((ctx) => { executed = true; }, context))
-                .ShouldThrowExactly<InvalidOperationException>().WithMessage(failureMessage);
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, injectionRate, enabled);
+            policy.Invoking(x => x.Execute(action, context))
+                .ShouldThrowExactly<InvalidOperationException>();
 
             executed.Should().BeFalse();
+        }
+        #endregion
+
+        #region TResult Based Monkey Policies
+        [Fact]
+        public void InjectFaultContext_Free_Should_Return_Fault()
+        {
+            Boolean executed = false;
+            Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
+            ResultPrimitive fault = ResultPrimitive.Fault;
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, 0.6, () => true);
+            ResultPrimitive response = policy.Execute(action);
+            response.Should().Be(ResultPrimitive.Fault);
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFaultContext_Free_Should_Not_Return_Fault()
+        {
+            Boolean executed = false;
+            Func<ResultPrimitive> action = () => { executed = true; return ResultPrimitive.Good; };
+            ResultPrimitive fault = ResultPrimitive.Fault;
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, 0.4, () => true);
+            ResultPrimitive response = policy.Execute(action);
+            response.Should().Be(ResultPrimitive.Good);
+            executed.Should().BeTrue();
+        }
+
+        [Fact]
+        public void InjectFaultWith_Context_Enabled_Should_Return_Fault()
+        {
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = true;
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+            ResultPrimitive fault = ResultPrimitive.Fault;
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+            {
+                return ((bool)ctx["ShouldFail"]);
+            };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, 0.6, enabled);
+            ResultPrimitive response = policy.Execute(action, context);
+            response.Should().Be(ResultPrimitive.Fault);
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFaultWith_Context_Enabled_Should_Not_Return_Fault()
+        {
+            Boolean executed = false;
+            Context context = new Context();
+            context["ShouldFail"] = false;
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+            ResultPrimitive fault = ResultPrimitive.Fault;
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+            {
+                return ((bool)ctx["ShouldFail"]);
+            };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, 0.6, enabled);
+            ResultPrimitive response = policy.Execute(action, context);
+            response.Should().Be(ResultPrimitive.Good);
+            executed.Should().BeTrue();
+        }
+
+        [Fact]
+        public void InjectFaultWith_Context_InjectionRate_Should_Return_Fault()
+        {
+            Boolean executed = false;
+            Context context = new Context();
+            context["InjectionRate"] = 0.6;
+
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+            Func<Context, CancellationToken, ResultPrimitive> fault = (ctx, ct) =>
+            {
+                return ResultPrimitive.Fault;
+            };
+
+            Func<Context, CancellationToken, Double> injectionRate = (ctx, ct) =>
+            {
+                if (ctx["InjectionRate"] != null)
+                {
+                    return (double)ctx["InjectionRate"];
+                }
+
+                return 0;
+            };
+
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+            {
+                return true;
+            };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, injectionRate, enabled);
+            ResultPrimitive response = policy.Execute(action, context);
+            response.Should().Be(ResultPrimitive.Fault);
+            executed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void InjectFaultWith_Context_InjectionRate_Should_Not_Return_Fault()
+        {
+            Boolean executed = false;
+            Context context = new Context();
+            context["InjectionRate"] = 0.4;
+
+            Func<Context, ResultPrimitive> action = (ctx) => { executed = true; return ResultPrimitive.Good; };
+            Func<Context, CancellationToken, ResultPrimitive> fault = (ctx, ct) =>
+            {
+                return ResultPrimitive.Fault;
+            };
+
+            Func<Context, CancellationToken, Double> injectionRate = (ctx, ct) =>
+            {
+                if (ctx["InjectionRate"] != null)
+                {
+                    return (double)ctx["InjectionRate"];
+                }
+
+                return 0;
+            };
+
+            Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
+            {
+                return true;
+            };
+
+            var policy = MonkeyPolicy.InjectFault<ResultPrimitive>(fault, injectionRate, enabled);
+            ResultPrimitive response = policy.Execute(action, context);
+            response.Should().Be(ResultPrimitive.Good);
+            executed.Should().BeTrue();
         }
         #endregion
 
@@ -258,12 +356,14 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return (bool)ctx["ShouldFail"];
             };
 
+            Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
+
             var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 cts.Cancel();
 
-                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                policy.Invoking(x => x.Execute((ctx, ct) => action, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
             }
 
@@ -302,6 +402,8 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return rate;
             };
 
+            Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
+
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
@@ -312,7 +414,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
 
                 var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
 
-                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                policy.Invoking(x => x.Execute(action, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
             }
 
@@ -340,6 +442,8 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                 return new Exception();
             };
 
+            Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
+
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 Func<Context, CancellationToken, bool> enabled = (ctx, ct) =>
@@ -361,7 +465,7 @@ namespace Polly.Contrib.Simmy.Specs.Fault
 
                 var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
 
-                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                policy.Invoking(x => x.Execute(action, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
             }
 
@@ -408,9 +512,11 @@ namespace Polly.Contrib.Simmy.Specs.Fault
                     return new Exception();
                 };
 
+                Func<Context, CancellationToken, ResultPrimitive> action = (ctx, ct) => { executed = true; return ResultPrimitive.Good; };
+
                 var policy = MonkeyPolicy.InjectFault(fault, injectionRate, enabled);
 
-                policy.Invoking(x => x.Execute((ctx, ct) => { executed = true; }, context, cts.Token))
+                policy.Invoking(x => x.Execute(action, context, cts.Token))
                     .ShouldThrow<OperationCanceledException>();
             }
 

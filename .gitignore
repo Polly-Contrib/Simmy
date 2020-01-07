@@ -14,6 +14,7 @@ TestResults
 *.sln.docstates
 .vs/
 .vscode/
+.idea
 
 # Build results
 [Dd]ebug/

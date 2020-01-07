@@ -34,46 +34,158 @@ Simmy offers the following chaos-injection policies:
 
 |Policy| What does the policy do?|
 | ------------- |------------- |
-|**[Fault](#Inject-fault)**|Injects exceptions or substitute results, to fake faults in your system.|
+|**[Exception](#Inject-exception)**|Injects exceptions in your system.|
+|**[Result](#Inject-result)**|Substitute results to fake faults in your system.|
 |**[Latency](#Inject-latency)**|Injects latency into executions before the calls are made.|
 |**[Behavior](#Inject-behavior)**|Allows you to inject _any_ extra behaviour, before a call is placed. |
 
 # Usage
+## Step 1: Set up the Monkey Policy
 
-## Inject fault
+## Inject exception
 ```csharp
-var chaosPolicy = MonkeyPolicy.InjectFault(
-    Exception | Func<Context, CancellationToken, Exception> fault,
-    double | Func<Context, CancellationToken, double> injectionRate, 
-    Func<bool> | Func<Context, CancellationToken, bool> enabled 
+var chaosPolicy = MonkeyPolicy.InjectException(Action<InjectOutcomeOptions<Exception>>);
+```
+For example:
+```csharp
+// Following example causes the policy to throw SocketException with a probability of 5% if enabled
+var fault = new SocketException(errorCode: 10013);
+var chaosPolicy = MonkeyPolicy.InjectException(with =>
+	with.Fault(fault)
+		.InjectionRate(0.05)
+		.Enabled()
+	);
+```
+
+## Inject result
+```csharp
+var chaosPolicy = MonkeyPolicy.InjectResult(Action<InjectOutcomeOptions<TResult>>);
+```
+For example:
+```csharp
+// Following example causes the policy to return a bad request HttpResponseMessage with a probability of 5% if enabled
+var result = new HttpResponseMessage(HttpStatusCode.BadRequest);
+var chaosPolicy = MonkeyPolicy.InjectResult<HttpResponseMessage>(with =>
+	with.Result(result)
+		.InjectionRate(0.05)
+		.Enabled()
 );
 ```
 
 ## Inject latency
 ```csharp
-var chaosPolicy = MonkeyPolicy.InjectLatency(
-    TimeSpan | Func<Context, CancellationToken, Timespan> latency,
-    double | Func<Context, CancellationToken, double> injectionRate, 
-    Func<bool> | Func<Context, CancellationToken, bool> enabled 
-);
+var chaosPolicy = MonkeyPolicy.InjectLatency(Action<InjectLatencyOptions>);
+```
+For example:
+```csharp
+// Following example causes policy to introduce an added latency of 5 seconds to a randomly-selected 10% of the calls.
+var isEnabled = true;
+var chaosPolicy = MonkeyPolicy.InjectLatency(with =>
+	with.Latency(TimeSpan.FromSeconds(5))
+		.InjectionRate(0.1)
+		.Enabled(isEnabled)
+	);
 ```
 
 ## Inject behavior
 ```csharp
-var chaosPolicy = MonkeyPolicy.InjectBehaviour(
-    Action | Action<Context, CancellationToken> behaviour,
-    double | Func<Context, CancellationToken, double> injectionRate, 
-    Func<bool> | Func<Context, CancellationToken, bool> enabled 
-);
+var chaosPolicy = MonkeyPolicy.InjectBehaviour(Action<InjectBehaviourOptions>);
+```
+For example:
+```csharp
+// Following example causes policy to execute a method to restart a virtual machine; the probability that method will be executed is 1% if enabled
+var chaosPolicy = MonkeyPolicy.InjectBehaviour(with =>
+	with.Behaviour(() => restartRedisVM())
+		.InjectionRate(0.01)
+		.EnabledWhen((ctx, ct) => isEnabled(ctx, ct))
+	);
 ```
 
 ## Parameters
+All the parameters are expressed in a Fluent-builder syntax way.
 
-* **enabled:** Faults are only injected when returns true. 
-* **injectionRate:** A decimal between 0 and 1 inclusive. The policy will inject the fault, randomly, that proportion of the time, eg: if 0.2, twenty percent of calls will be randomly affected; if 0.01, one percent of calls; if 1, all calls. 
-* **fault:** The fault to inject. 
-* **latency:** The latency to inject.
-* **behaviour:** The behaviour to inject. 
+### Enabled
+Determines whether the policy is enabled or not.
+
+* Configure that the monkey policy is enabled. 
+```csharp
+PolicyOptions.Enabled();
+```
+
+* Receives a boolean value indicating whether the monkey policy is enabled.
+```csharp
+PolicyOptions.Enabled(bool);
+```
+
+* Receives a delegate which can be executed to determine whether the monkey policy should be enabled.
+```csharp
+PolicyOptions.EnabledWhen(Func<Context, CancellationToken, bool>);
+```
+
+### InjectionRate
+A decimal between 0 and 1 inclusive. The policy will inject the fault, randomly, that proportion of the time, eg: if 0.2, twenty percent of calls will be randomly affected; if 0.01, one percent of calls; if 1, all calls. 
+
+* Receives a double value between [0, 1] indicating the rate at which this monkey policy should inject chaos.
+```csharp
+PolicyOptions.InjectionRate(Double);
+```
+
+* Receives a delegate which can be executed to determine the rate at which this monkey policy should inject chaos.
+```csharp
+PolicyOptions.InjectionRate(Func<Context, CancellationToken, Double>);
+```
+
+### Fault
+The fault to inject. The `Fault` api has overloads to build the policy in a generic way: `PolicyOptions.Fault<TResult>(...)`
+
+* Receives an exception to configure the fault to inject with the monkey policy.
+```csharp
+PolicyOptions.Fault(Exception);
+```
+
+* Receives a delegate representing the fault to inject with the monkey policy.
+```csharp
+PolicyOptions.Fault(Func<Context, CancellationToken, Exception>);
+```
+
+### Result
+The result to inject.
+
+* Receives a generic TResult value to configure the result to inject with the monkey policy.
+```csharp
+PolicyOptions.Result<TResult>(TResult);
+```
+
+* Receives a delegate representing the result to inject with the monkey policy.
+```csharp
+PolicyOptions.Result<TResult>(Func<Context, CancellationToken, TResult>);
+```
+
+### Latency
+The latency to inject.
+
+* Receives a TimeSpan value to configure the latency to inject with the monkey policy.
+```csharp
+PolicyOptions.Latency(TimeSpan);
+```
+
+* Receives a delegate representing the latency to inject with the monkey policy.
+```csharp
+PolicyOptions.Latency(Func<Context, CancellationToken, TimeSpan>);
+```
+
+### Behaviour
+The behaviour to inject. 
+
+* Receives an Action to configure the behaviour to inject with the monkey policy.
+```csharp
+PolicyOptions.Behaviour(Action);
+```
+
+* Receives a delegate representing the Action to inject with the monkey policy.
+```csharp
+PolicyOptions.Behaviour(Action<Context, CancellationToken>);
+```
 
 ### Context-driven behaviour
 
@@ -84,43 +196,6 @@ All parameters are available in a `Func<Context, ...>` form.  This allows you to
 
 The [example app](https://github.com/Polly-Contrib/Polly.Contrib.SimmyDemo_WebApi) demonstrates both these approaches in practice.
 
-# Basic examples
-
-## Step 1: Set up the Monkey Policy
-
-### Fault
-
-```csharp
-// Following example causes the policy to throw SocketException with a probability of 5% if enabled
-var fault = new SocketException(errorCode: 10013);
-var faultPolicy = MonkeyPolicy.InjectFault<SocketException>(
-	fault, 
-	injectionRate: 0.05, 
-	enabled: () => isEnabled()
-	);
-```
-
-### Latency
-```csharp
-
-// Following example causes policy to introduce an added latency of 5 seconds to a randomly-selected 10% of the calls.
-var chaosPolicy = MonkeyPolicy.InjectLatency(
-	latency: TimeSpan.FromSeconds(5),
-	injectionRate: 0.1,
-	enabled: () => isEnabled()
-	);
-```
-
-### Behavior
-
-```csharp
-// Following example causes policy to execute a method to restart a virtual machine; the probability that method will be executed is 1% if enabled
-var chaosPolicy = MonkeyPolicy.InjectBehaviour(
-	behaviour: () => restartRedisVM(), 
-	injectionRate: 0.01,
-	enabled: () => isEnabled()
-	);
-```
 
 ## Step 2: Execute code through the Monkey Policy
 
@@ -137,10 +212,10 @@ var policyWrap = Policy
 policyWrap.Execute(() => someMethod())
 
 // All policies are also available in async forms.
-var chaosLatencyPolicy = MonkeyPolicy.InjectLatencyAsync(
-	latency: TimeSpan.FromSeconds(5),
-	injectionRate: 0.1,
-	enabled: () => isEnabled()
+var chaosLatencyPolicy = MonkeyPolicy.InjectLatencyAsync(with =>
+	with.Latency(TimeSpan.FromSeconds(5))
+		.InjectionRate(0.1)
+		.Enabled()
 	);
 var policyWrap = Policy
   .WrapAsync(fallbackPolicy, timeoutPolicy, chaosLatencyPolicy);
@@ -188,3 +263,4 @@ Simmy was [the brainchild of](https://github.com/App-vNext/Polly/issues/499) [@m
 * [Dylan Reisenberger](http://www.thepollyproject.org/author/dylan/) presents an [intentionally simple example](https://github.com/Polly-Contrib/Polly.Contrib.SimmyDemo_WebApi) .NET Core WebAPI app demonstrating how we can set up Simmy chaos policies for certain environments and without changing any existing configuration code injecting faults or chaos by modifying external configuration.
 
 * [Geovanny Alzate Sandoval](https://github.com/vany0114) made a [microservices based sample application](https://github.com/vany0114/chaos-injection-using-simmy) to demonstrate how chaos engineering works with Simmy using chaos policies in a distributed system and how we can inject even a custom behavior given our needs or infrastructure, this time injecting custom behavior to generate chaos in our Service Fabric Cluster.
+ 
