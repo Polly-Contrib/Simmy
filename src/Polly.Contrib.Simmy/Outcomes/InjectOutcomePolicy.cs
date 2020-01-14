@@ -11,13 +11,6 @@ namespace Polly.Contrib.Simmy.Outcomes
     {
         private readonly Func<Context, CancellationToken, Exception> _faultProvider;
 
-        [Obsolete]
-        internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
-            : base(injectionRate, enabled)
-        {
-            _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
-        }
-
         internal InjectOutcomePolicy(InjectOutcomeOptions<Exception> options)
             : base(options.InjectionRate, options.Enabled)
         {
@@ -44,20 +37,6 @@ namespace Polly.Contrib.Simmy.Outcomes
     {
         private readonly Func<Context, CancellationToken, Exception> _faultProvider;
         private readonly Func<Context, CancellationToken, TResult> _resultProvider;
-
-        [Obsolete]
-        internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
-            : base(injectionRate, enabled)
-        {
-            _faultProvider = faultProvider ?? throw new ArgumentNullException(nameof(faultProvider));
-        }
-
-        [Obsolete]
-        internal InjectOutcomePolicy(Func<Context, CancellationToken, TResult> resultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
-            : base(injectionRate, enabled)
-        {
-            _resultProvider = resultProvider ?? throw new ArgumentNullException(nameof(resultProvider));
-        }
 
         internal InjectOutcomePolicy(InjectOutcomeOptions<Exception> options)
             : base(options.InjectionRate, options.Enabled)

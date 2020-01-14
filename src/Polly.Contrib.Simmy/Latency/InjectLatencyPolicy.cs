@@ -11,16 +11,6 @@ namespace Polly.Contrib.Simmy.Latency
     {
         private readonly Func<Context, CancellationToken, TimeSpan> _latencyProvider;
 
-        [Obsolete]
-        internal InjectLatencyPolicy(
-            Func<Context, CancellationToken, TimeSpan> latencyProvider,
-            Func<Context, CancellationToken, double> injectionRate,
-            Func<Context, CancellationToken, bool> enabled)
-            : base(injectionRate, enabled)
-        {
-            _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
-        }
-
         internal InjectLatencyPolicy(InjectLatencyOptions options)
             : base(options.InjectionRate, options.Enabled)
         {
@@ -54,16 +44,6 @@ namespace Polly.Contrib.Simmy.Latency
     public class InjectLatencyPolicy<TResult> : MonkeyPolicy<TResult>
     {
         private readonly Func<Context, CancellationToken, TimeSpan> _latencyProvider;
-
-        [Obsolete]
-        internal InjectLatencyPolicy(
-            Func<Context, CancellationToken, TimeSpan> latencyProvider,
-            Func<Context, CancellationToken, double> injectionRate,
-            Func<Context, CancellationToken, bool> enabled)
-            : base(injectionRate, enabled)
-        {
-            _latencyProvider = latencyProvider ?? throw new ArgumentNullException(nameof(latencyProvider));
-        }
 
         internal InjectLatencyPolicy(InjectLatencyOptions options)
             : base(options.InjectionRate, options.Enabled)
