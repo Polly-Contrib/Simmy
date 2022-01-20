@@ -109,6 +109,60 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             injectedBehaviourExecuted.Should().BeTrue();
         }
 
+        #region BeforeInject
+        [Fact]
+        public async Task Should_call_before_inject_callback_before_injecting_behavior()
+        {
+            var beforeInjectExecuted = false;
+            var injectedBehaviourExecuted = false;
+
+            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+                with.Behaviour(async () =>
+                {
+                    beforeInjectExecuted.Should().BeTrue();
+                    injectedBehaviourExecuted = true;
+                })
+                .BeforeInject(async (context, cancellation) =>
+                {
+                    injectedBehaviourExecuted.Should().BeFalse();
+                    beforeInjectExecuted = true;
+                })
+                .InjectionRate(0.6)
+                .Enabled()
+            );
+
+            await policy.ExecuteAsync(() => Task.CompletedTask);
+
+            beforeInjectExecuted.Should().BeTrue();
+            injectedBehaviourExecuted.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Should_not_call_before_inject_callback_if_not_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var behaviorExecuted = false;
+
+            var policy = MonkeyPolicy.InjectBehaviourAsync(with =>
+                with.Behaviour(async () =>
+                {
+                    behaviorExecuted = true;
+                })
+                .BeforeInject(async (context, cancellation) =>
+                {
+                    beforeInjectExecuted = true;
+                })
+                .InjectionRate(0.4)
+                .Enabled()
+            );
+
+            await policy.ExecuteAsync(() => Task.CompletedTask);
+
+            beforeInjectExecuted.Should().BeFalse();
+            behaviorExecuted.Should().BeFalse();
+        }
+        #endregion
+
         #region invalid threshold on configuration and execution time
 
         [Fact]

@@ -11,6 +11,7 @@ namespace Polly.Contrib.Simmy.Outcomes
     public class AsyncInjectOutcomePolicy : AsyncMonkeyPolicy
     {
         private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
+        private readonly Func<Context, CancellationToken, Task> _beforeInjectCallback;
 
         [Obsolete]
         internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
@@ -23,6 +24,7 @@ namespace Polly.Contrib.Simmy.Outcomes
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -36,6 +38,7 @@ namespace Polly.Contrib.Simmy.Outcomes
                 _faultProvider,
                 InjectionRate,
                 Enabled,
+                _beforeInjectCallback,
                 continueOnCapturedContext);
         }
     }
@@ -47,6 +50,7 @@ namespace Polly.Contrib.Simmy.Outcomes
     {
         private readonly Func<Context, CancellationToken, Task<Exception>> _faultProvider;
         private readonly Func<Context, CancellationToken, Task<TResult>> _resultProvider;
+        private readonly Func<Context, CancellationToken, Task> _beforeInjectCallback;
 
         [Obsolete]
         internal AsyncInjectOutcomePolicy(Func<Context, CancellationToken, Task<Exception>> faultProvider, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
@@ -66,12 +70,14 @@ namespace Polly.Contrib.Simmy.Outcomes
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         internal AsyncInjectOutcomePolicy(InjectOutcomeAsyncOptions<TResult> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _resultProvider = options.Outcome ?? throw new ArgumentNullException(nameof(options.Outcome));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -87,6 +93,7 @@ namespace Polly.Contrib.Simmy.Outcomes
                     _faultProvider,
                     InjectionRate,
                     Enabled,
+                    _beforeInjectCallback,
                     continueOnCapturedContext);
             }
             else if (_resultProvider != null)
@@ -98,6 +105,7 @@ namespace Polly.Contrib.Simmy.Outcomes
                     _resultProvider,
                     InjectionRate,
                     Enabled,
+                    _beforeInjectCallback,
                     continueOnCapturedContext);
             }
             else

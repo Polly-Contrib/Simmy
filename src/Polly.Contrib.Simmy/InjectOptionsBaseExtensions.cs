@@ -59,5 +59,17 @@ namespace Polly.Contrib.Simmy
             options.InjectionRate = injectionRateProvider;
             return options;
         }
+
+        /// <summary>
+        /// Configure a callback to be run immediately before injecting chaos.
+        /// </summary>
+        /// <param name="options">The configuration object.</param>
+        /// <param name="beforeInjectCallback">A delegate to be run immediately before injecting chaos.</param>
+        /// <returns></returns>
+        public static InjectOptionsBase BeforeInject(this InjectOptionsBase options, Action<Context, CancellationToken> beforeInjectCallback)
+        {
+            options.BeforeInjectCallback = beforeInjectCallback;
+            return options;
+        }
     }
 }

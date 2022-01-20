@@ -34,10 +34,15 @@ namespace Polly.Contrib.Simmy
             CancellationToken cancellationToken,
             Action<Context, CancellationToken> injectedBehaviour,
             Func<Context, CancellationToken, Double> injectionRate,
-            Func<Context, CancellationToken, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled,
+            Action<Context, CancellationToken> beforeInjectCallback)
         {
             if (ShouldInject(context, cancellationToken, injectionRate, enabled))
             {
+                if (beforeInjectCallback != null)
+                {
+                    beforeInjectCallback(context, cancellationToken);
+                }
                 injectedBehaviour(context, cancellationToken);
             }
 
@@ -52,7 +57,8 @@ namespace Polly.Contrib.Simmy
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, Exception> injectedException,
             Func<Context, CancellationToken, Double> injectionRate,
-            Func<Context, CancellationToken, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled,
+            Action<Context, CancellationToken> beforeInjectCallback)
         {
             if (ShouldInject(context, cancellationToken, injectionRate, enabled))
             {
@@ -63,6 +69,10 @@ namespace Polly.Contrib.Simmy
 
                 if (exception != null)
                 {
+                    if (beforeInjectCallback != null)
+                    {
+                        beforeInjectCallback(context, cancellationToken);
+                    }
                     throw exception;
                 }
             }
@@ -76,10 +86,15 @@ namespace Polly.Contrib.Simmy
             CancellationToken cancellationToken,
             Func<Context, CancellationToken, TResult> injectedResult,
             Func<Context, CancellationToken, Double> injectionRate,
-            Func<Context, CancellationToken, bool> enabled)
+            Func<Context, CancellationToken, bool> enabled,
+            Action<Context, CancellationToken> beforeInjectCallback)
         {
             if (ShouldInject(context, cancellationToken, injectionRate, enabled))
             {
+                if (beforeInjectCallback != null)
+                {
+                    beforeInjectCallback(context, cancellationToken);
+                }
                 return injectedResult(context, cancellationToken);
             }
 

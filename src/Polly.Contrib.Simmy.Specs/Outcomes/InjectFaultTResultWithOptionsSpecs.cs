@@ -63,6 +63,49 @@ namespace Polly.Contrib.Simmy.Specs.Outcomes
         }
         #endregion
 
+        #region BeforeInject
+        [Fact]
+        public void Should_call_before_inject_callback_if_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var executed = false;
+
+            var policy = MonkeyPolicy.InjectResult<ResultPrimitive>(with =>
+                with.Fault<ResultPrimitive>(new Exception())
+                    .BeforeInject((context, cancellation) => { beforeInjectExecuted = true; })
+                    .InjectionRate(0.6)
+                    .Enabled());
+
+            policy.Invoking(p => p.Execute(() => { executed = true; return ResultPrimitive.Good; }))
+                .ShouldThrowExactly<Exception>();
+
+            executed.Should().BeFalse();
+            beforeInjectExecuted.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_not_call_before_inject_callback_if_not_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var executed = false;
+
+            var policy = MonkeyPolicy.InjectResult<ResultPrimitive>(with =>
+                with.Fault<ResultPrimitive>(new Exception())
+                    .BeforeInject((context, cancellation) => { beforeInjectExecuted = true; })
+                    .InjectionRate(0.4)
+                    .Enabled());
+
+            policy.Execute(() =>
+            {
+                beforeInjectExecuted.Should().BeFalse();
+                executed = true;
+                return ResultPrimitive.Good;
+            });
+            executed.Should().BeTrue();
+            beforeInjectExecuted.Should().BeFalse();
+        }
+        #endregion
+
         #region Basic Overload, Result as Fault, With Context
         [Fact]
         public void InjectFaultWith_Context_Should_not_execute_user_delegate()

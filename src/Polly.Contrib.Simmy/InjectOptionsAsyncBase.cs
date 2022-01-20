@@ -18,5 +18,10 @@ namespace Polly.Contrib.Simmy
         /// Lambda to check if this policy is enabled in current context
         /// </summary>
         internal Func<Context, CancellationToken, Task<bool>> Enabled { get; set; }
+
+        /// <summary>
+        /// Lambda to call immediately before injecting
+        /// </summary>
+        internal virtual Func<Context, CancellationToken, Task> BeforeInjectCallback { get; set; }
     }
 }

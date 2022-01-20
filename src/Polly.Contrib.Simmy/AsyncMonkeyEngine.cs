@@ -41,10 +41,15 @@ namespace Polly.Contrib.Simmy
             Func<Context, CancellationToken, Task> injectedBehaviour,
             Func<Context, CancellationToken, Task<Double>> injectionRate,
             Func<Context, CancellationToken, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task> beforeInjectCallback,
             bool continueOnCapturedContext)
         {
             if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
+                if (beforeInjectCallback != null)
+                {
+                    await beforeInjectCallback(context, cancellationToken);
+                }
                 await injectedBehaviour(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
 
@@ -60,6 +65,7 @@ namespace Polly.Contrib.Simmy
             Func<Context, CancellationToken, Task<Exception>> injectedException,
             Func<Context, CancellationToken, Task<Double>> injectionRate,
             Func<Context, CancellationToken, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task> beforeInjectCallback,
             bool continueOnCapturedContext)
         {
             if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
@@ -71,6 +77,10 @@ namespace Polly.Contrib.Simmy
 
                 if (exception != null)
                 {
+                    if (beforeInjectCallback != null)
+                    {
+                        await beforeInjectCallback(context, cancellationToken);
+                    }
                     throw exception;
                 }
             }
@@ -85,10 +95,15 @@ namespace Polly.Contrib.Simmy
             Func<Context, CancellationToken, Task<TResult>> injectedResult,
             Func<Context, CancellationToken, Task<Double>> injectionRate,
             Func<Context, CancellationToken, Task<bool>> enabled,
+            Func<Context, CancellationToken, Task> beforeInjectCallback,
             bool continueOnCapturedContext)
         {
             if (await ShouldInjectAsync(context, cancellationToken, injectionRate, enabled, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext))
             {
+                if (beforeInjectCallback != null)
+                {
+                    await beforeInjectCallback(context, cancellationToken);
+                }
                 return await injectedResult(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
 

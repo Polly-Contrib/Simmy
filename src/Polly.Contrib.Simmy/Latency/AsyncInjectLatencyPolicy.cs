@@ -11,6 +11,7 @@ namespace Polly.Contrib.Simmy.Latency
     public class AsyncInjectLatencyPolicy : AsyncMonkeyPolicy
     {
         private readonly Func<Context, CancellationToken, Task<TimeSpan>> _latencyProvider;
+        private readonly Func<Context, CancellationToken, Task> _beforeInjectCallback;
 
         [Obsolete]
         internal AsyncInjectLatencyPolicy(
@@ -26,6 +27,7 @@ namespace Polly.Contrib.Simmy.Latency
             : base(options.InjectionRate, options.Enabled)
         {
             _latencyProvider = options.LatencyInternal ?? throw new ArgumentNullException(nameof(options.LatencyInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -52,6 +54,7 @@ namespace Polly.Contrib.Simmy.Latency
                 },
                 InjectionRate,
                 Enabled,
+                _beforeInjectCallback,
                 continueOnCapturedContext);
         }
     }
@@ -62,6 +65,7 @@ namespace Polly.Contrib.Simmy.Latency
     public class AsyncInjectLatencyPolicy<TResult> : AsyncMonkeyPolicy<TResult>
     {
         private readonly Func<Context, CancellationToken, Task<TimeSpan>> _latencyProvider;
+        private readonly Func<Context, CancellationToken, Task> _beforeInjectCallback;
 
         [Obsolete]
         internal AsyncInjectLatencyPolicy(
@@ -77,6 +81,7 @@ namespace Polly.Contrib.Simmy.Latency
             : base(options.InjectionRate, options.Enabled)
         {
             _latencyProvider = options.LatencyInternal ?? throw new ArgumentNullException(nameof(options.LatencyInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -103,6 +108,7 @@ namespace Polly.Contrib.Simmy.Latency
                 },
                 InjectionRate,
                 Enabled,
+                _beforeInjectCallback,
                 continueOnCapturedContext);
         }
     }
