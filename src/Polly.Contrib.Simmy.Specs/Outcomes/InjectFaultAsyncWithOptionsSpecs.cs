@@ -77,6 +77,46 @@ namespace Polly.Contrib.Simmy.Specs.Outcomes
         }
         #endregion
 
+        #region BeforeInject
+        [Fact]
+        public async Task Should_call_before_inject_callback_if_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var executed = false;
+
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
+                with.Fault(new Exception())
+                    .BeforeInject(async (context, cancellation) => { beforeInjectExecuted = true; })
+                    .InjectionRate(0.6)
+                    .Enabled());
+
+            policy.Awaiting(async p => await p.ExecuteAsync(async () => { executed = true; })).ShouldThrowExactly<Exception>();
+            executed.Should().BeFalse();
+            beforeInjectExecuted.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Should_not_call_before_inject_callback_if_not_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var executed = false;
+
+            var policy = MonkeyPolicy.InjectExceptionAsync(with =>
+                with.Fault(new Exception())
+                    .BeforeInject(async (context, cancellation) => { beforeInjectExecuted = true; })
+                    .InjectionRate(0.4)
+                    .Enabled());
+
+            await policy.ExecuteAsync(async () =>
+            {
+                beforeInjectExecuted.Should().BeFalse();
+                executed = true;
+            });
+            executed.Should().BeTrue();
+            beforeInjectExecuted.Should().BeFalse();
+        }
+        #endregion
+
         #region Basic Overload, Exception, With Context
         [Fact]
         public void InjectFault_With_Context_Should_not_execute_user_delegate_async()

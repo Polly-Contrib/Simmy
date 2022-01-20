@@ -105,6 +105,50 @@ namespace Polly.Contrib.Simmy.Specs.Latency
 
         #endregion
 
+        #region BeforeInject
+        [Fact]
+        public async Task Should_call_before_inject_callback_if_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var executed = false;
+
+            var policy = MonkeyPolicy.InjectLatencyAsync(with =>
+                with.Latency(TimeSpan.FromMilliseconds(1))
+                    .BeforeInject(async (context, cancellation) => { beforeInjectExecuted = true; })
+                    .InjectionRate(0.6)
+                    .Enabled());
+
+            await policy.ExecuteAsync(async () =>
+            {
+                beforeInjectExecuted.Should().BeTrue();
+                executed = true;
+            });
+            executed.Should().BeTrue();
+            beforeInjectExecuted.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Should_not_call_before_inject_callback_if_not_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var executed = false;
+
+            var policy = MonkeyPolicy.InjectLatencyAsync(with =>
+                with.Latency(TimeSpan.FromMilliseconds(1))
+                    .BeforeInject(async (context, cancellation) => { beforeInjectExecuted = true; })
+                    .InjectionRate(0.4)
+                    .Enabled());
+
+            await policy.ExecuteAsync(async () =>
+            {
+                beforeInjectExecuted.Should().BeFalse();
+                executed = true;
+            });
+            executed.Should().BeTrue();
+            beforeInjectExecuted.Should().BeFalse();
+        }
+        #endregion
+
         #region With Context
 
         [Fact]

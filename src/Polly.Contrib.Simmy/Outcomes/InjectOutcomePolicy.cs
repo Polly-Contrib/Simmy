@@ -10,6 +10,7 @@ namespace Polly.Contrib.Simmy.Outcomes
     public class InjectOutcomePolicy : MonkeyPolicy
     {
         private readonly Func<Context, CancellationToken, Exception> _faultProvider;
+        private readonly Action<Context, CancellationToken> _beforeInjectCallback;
 
         [Obsolete]
         internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
@@ -22,6 +23,7 @@ namespace Polly.Contrib.Simmy.Outcomes
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.OutcomeInternal ?? throw new ArgumentNullException(nameof(options.OutcomeInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -33,7 +35,8 @@ namespace Polly.Contrib.Simmy.Outcomes
                 cancellationToken,
                 _faultProvider,
                 InjectionRate,
-                Enabled);
+                Enabled,
+                _beforeInjectCallback);
         }
     }
 
@@ -44,6 +47,7 @@ namespace Polly.Contrib.Simmy.Outcomes
     {
         private readonly Func<Context, CancellationToken, Exception> _faultProvider;
         private readonly Func<Context, CancellationToken, TResult> _resultProvider;
+        private readonly Action<Context, CancellationToken> _beforeInjectCallback;
 
         [Obsolete]
         internal InjectOutcomePolicy(Func<Context, CancellationToken, Exception> faultProvider, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
@@ -63,12 +67,14 @@ namespace Polly.Contrib.Simmy.Outcomes
             : base(options.InjectionRate, options.Enabled)
         {
             _faultProvider = options.OutcomeInternal ?? throw new ArgumentNullException(nameof(options.OutcomeInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         internal InjectOutcomePolicy(InjectOutcomeOptions<TResult> options)
             : base(options.InjectionRate, options.Enabled)
         {
             _resultProvider = options.OutcomeInternal ?? throw new ArgumentNullException(nameof(options.OutcomeInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -82,7 +88,8 @@ namespace Polly.Contrib.Simmy.Outcomes
                     cancellationToken,
                     _faultProvider,
                     InjectionRate,
-                    Enabled);
+                    Enabled,
+                    _beforeInjectCallback);
             }
             else if (_resultProvider != null)
             {
@@ -92,7 +99,8 @@ namespace Polly.Contrib.Simmy.Outcomes
                     cancellationToken,
                     _resultProvider,
                     InjectionRate,
-                    Enabled);
+                    Enabled,
+                    _beforeInjectCallback);
             }
             else
             {

@@ -91,6 +91,60 @@ namespace Polly.Contrib.Simmy.Specs.Behavior
             injectedBehaviourExecuted.Should().BeTrue();
         }
 
+        #region BeforeInject
+        [Fact]
+        public void Should_call_before_inject_callback_before_injecting_behavior()
+        {
+            var beforeInjectExecuted = false;
+            var injectedBehaviourExecuted = false;
+
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() =>
+                {
+                    beforeInjectExecuted.Should().BeTrue();
+                    injectedBehaviourExecuted = true;
+                })
+                .BeforeInject((context, cancellation) =>
+                {
+                    injectedBehaviourExecuted.Should().BeFalse();
+                    beforeInjectExecuted = true;
+                })
+                .InjectionRate(0.6)
+                .Enabled()
+            );
+
+            policy.Execute(() => { });
+
+            beforeInjectExecuted.Should().BeTrue();
+            injectedBehaviourExecuted.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_not_call_before_inject_callback_if_not_injecting()
+        {
+            var beforeInjectExecuted = false;
+            var behaviorExecuted = false;
+
+            var policy = MonkeyPolicy.InjectBehaviour(with =>
+                with.Behaviour(() =>
+                {
+                    behaviorExecuted = true;
+                })
+                .BeforeInject((context, cancellation) =>
+                {
+                    beforeInjectExecuted = true;
+                })
+                .InjectionRate(0.4)
+                .Enabled()
+            );
+
+            policy.Execute(() => { });
+
+            beforeInjectExecuted.Should().BeFalse();
+            behaviorExecuted.Should().BeFalse();
+        }
+        #endregion
+
         #region invalid threshold on configuration and execution time
 
         [Fact]

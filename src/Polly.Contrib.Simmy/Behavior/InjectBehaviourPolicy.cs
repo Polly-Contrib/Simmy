@@ -9,6 +9,7 @@ namespace Polly.Contrib.Simmy.Behavior
     public class InjectBehaviourPolicy : Simmy.MonkeyPolicy
     {
         private readonly Action<Context, CancellationToken> _behaviour;
+        private readonly Action<Context, CancellationToken> _beforeInjectCallback;
 
         [Obsolete]
         internal InjectBehaviourPolicy(Action<Context, CancellationToken> behaviour, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled) 
@@ -21,6 +22,7 @@ namespace Polly.Contrib.Simmy.Behavior
             : base(options.InjectionRate, options.Enabled)
         {
             _behaviour = options.BehaviourInternal ?? throw new ArgumentNullException(nameof(options.BehaviourInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -32,7 +34,8 @@ namespace Polly.Contrib.Simmy.Behavior
                 cancellationToken,
                 (ctx, ct) => _behaviour(ctx, ct),
                 InjectionRate,
-                Enabled);
+                Enabled,
+                _beforeInjectCallback);
         }
     }
     /// <summary>
@@ -42,6 +45,7 @@ namespace Polly.Contrib.Simmy.Behavior
     public class InjectBehaviourPolicy<TResult> : MonkeyPolicy<TResult>
     {
         private readonly Action<Context, CancellationToken> _behaviour;
+        private readonly Action<Context, CancellationToken> _beforeInjectCallback;
 
         [Obsolete]
         internal InjectBehaviourPolicy(Action<Context, CancellationToken> behaviour, Func<Context, CancellationToken, double> injectionRate, Func<Context, CancellationToken, bool> enabled)
@@ -54,6 +58,7 @@ namespace Polly.Contrib.Simmy.Behavior
             : base(options.InjectionRate, options.Enabled)
         {
             _behaviour = options.BehaviourInternal ?? throw new ArgumentNullException(nameof(options.BehaviourInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -65,7 +70,8 @@ namespace Polly.Contrib.Simmy.Behavior
                 cancellationToken,
                 (ctx, ct) => _behaviour(ctx, ct),
                 InjectionRate,
-                Enabled);
+                Enabled,
+                _beforeInjectCallback);
         }
     }
 }

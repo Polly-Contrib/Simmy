@@ -10,6 +10,7 @@ namespace Polly.Contrib.Simmy.Behavior
     public class AsyncInjectBehaviourPolicy : AsyncMonkeyPolicy
     {
         private readonly Func<Context, CancellationToken, Task> _behaviour;
+        private readonly Func<Context, CancellationToken, Task> _beforeInjectCallback;
 
         [Obsolete]
         internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
@@ -22,6 +23,7 @@ namespace Polly.Contrib.Simmy.Behavior
             : base(options.InjectionRate, options.Enabled)
         {
             _behaviour = options.BehaviourInternal ?? throw new ArgumentNullException(nameof(options.BehaviourInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -35,6 +37,7 @@ namespace Polly.Contrib.Simmy.Behavior
                 _behaviour,
                 InjectionRate,
                 Enabled,
+                _beforeInjectCallback,
                 continueOnCapturedContext);
         }
     }
@@ -46,6 +49,7 @@ namespace Polly.Contrib.Simmy.Behavior
     public class AsyncInjectBehaviourPolicy<TResult> : AsyncMonkeyPolicy<TResult>
     {
         private readonly Func<Context, CancellationToken, Task> _behaviour;
+        private readonly Func<Context, CancellationToken, Task> _beforeInjectCallback;
 
         [Obsolete]
         internal AsyncInjectBehaviourPolicy(Func<Context, CancellationToken, Task> behaviour, Func<Context, CancellationToken, Task<Double>> injectionRate, Func<Context, CancellationToken, Task<bool>> enabled)
@@ -58,6 +62,7 @@ namespace Polly.Contrib.Simmy.Behavior
             : base(options.InjectionRate, options.Enabled)
         {
             _behaviour = options.BehaviourInternal ?? throw new ArgumentNullException(nameof(options.BehaviourInternal));
+            _beforeInjectCallback = options.BeforeInjectCallback;
         }
 
         /// <inheritdoc/>
@@ -70,6 +75,7 @@ namespace Polly.Contrib.Simmy.Behavior
                 _behaviour,
                 InjectionRate,
                 Enabled,
+                _beforeInjectCallback,
                 continueOnCapturedContext);
         }
     }
